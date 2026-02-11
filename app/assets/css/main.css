@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+:root {
+  color-scheme: light;
+}
+
+html.light {
+  background-color: white !important;
+  color: black !important;
+}
