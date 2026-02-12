@@ -14,9 +14,9 @@
       ]"
     >
       <NuxtLink to="/" class="font-semibold text-slate-800 text-lg" v-if="!sidebar.collapsed || sidebar.hovered">
-        Brainlib
+        BrainLib
       </NuxtLink>
-      <NuxtLink to="/" v-else class="font-semibold text-slate-800 text-lg">Brainlib</NuxtLink> 
+      <NuxtLink to="/" v-else class="font-semibold text-slate-800 text-lg">BrainLib</NuxtLink> 
     </div>
 
     <!-- Main nav -->

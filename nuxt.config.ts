@@ -11,9 +11,13 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Brainlib",
-      meta: [{ name: "description", content: "Brainlib" }],
-      link: [{ rel: "preload", as: "style", href: "/assets/css/main.css" }],
+      title: "BrainLib",
+      meta: [{ name: "description", content: "BrainLib" }],
+      link: [
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+        { rel: "alternate icon", href: "/favicon.ico" },
+        { rel: "preload", as: "style", href: "/assets/css/main.css" }
+      ],
     },
   },
 

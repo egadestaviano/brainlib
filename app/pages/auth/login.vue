@@ -3,7 +3,7 @@
     <UCard class="w-full max-w-md shadow-md border border-gray-200 dark:border-gray-800 rounded-xl p-8 space-y-6">
       <!-- Logo & Title -->
       <div class="text-center space-y-3 mb-10">
-        <h1 class="text-2xl font-bold">Sign in to Brainlib</h1>
+        <h1 class="text-2xl font-bold">Sign in to BrainLib</h1>
         <p class="text-sm text-gray-500 dark:text-gray-400">
           Use your account to continue
         </p>
