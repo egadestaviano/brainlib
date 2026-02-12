@@ -11,8 +11,8 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Ims Portofolio",
-      meta: [{ name: "description", content: "ims Portofolio" }],
+      title: "Brainlib",
+      meta: [{ name: "description", content: "Brainlib" }],
       link: [{ rel: "preload", as: "style", href: "/assets/css/main.css" }],
     },
   },
@@ -50,10 +50,10 @@ export default defineNuxtConfig({
     colorMode: false,
   },
 
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   vite: {
     server: {
-      allowedHosts: ["mentora.allfilldev.com"],
+      allowedHosts: ["brainlib.egadestaviano.my.id"],
     },
   },
 });
