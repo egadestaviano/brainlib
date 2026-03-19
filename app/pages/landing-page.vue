@@ -15,5 +15,5 @@ definePageMeta({
     <LandingpageFeatures/>
    
     <!-- Price -->
-    <LandingpagePrice/>
+    <LandingpageCTA/>
 </template>
