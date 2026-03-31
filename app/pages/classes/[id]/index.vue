@@ -50,6 +50,8 @@
 </template>
 
 <script setup lang="ts">
+import { useLmsClassStore } from "~/stores/lmsclass";
+
 const route = useRoute();
 const lmsClassStore = useLmsClassStore();
 const classId = Number(route.params.id) || 1;

@@ -129,6 +129,10 @@
 import * as v from 'valibot'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
+import { useSidebarStore } from "~/stores/sidebar"
+import { useAuthStore } from "~/stores/auth"
+import { useLmsClassStore } from "~/stores/lmsclass"
+
 const sidebar = useSidebarStore()
 const auth = useAuthStore()
 const toast = useToast()

@@ -63,6 +63,9 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from "~/stores/auth"
+import { useLmsClassStore } from "~/stores/lmsclass"
+
 const router = useRouter()
 const authStore = useAuthStore()
 const lmsClassStore = useLmsClassStore()

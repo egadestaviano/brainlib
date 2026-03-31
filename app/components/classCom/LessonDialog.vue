@@ -100,7 +100,7 @@
               <template #header>
                 <div class="flex items-center justify-between">
                   <div class="font-semibold text-base text-gray-800">
-                    {{ idx + 1 }}. [{{ block.type || "unspecified" }}]
+                    {{ Number(idx) + 1 }}. [{{ block.type || "unspecified" }}]
                     <span class="text-gray-500">{{
                       block.title || "(Untitled)"
                     }}</span>
@@ -109,21 +109,21 @@
                     <UButton
                       size="xs"
                       color="neutral"
-                      @click="moveUp(idx)"
+                      @click="moveUp(Number(idx))"
                       :disabled="idx === 0"
                       icon="i-heroicons-arrow-up"
                     />
                     <UButton
                       size="xs"
                       color="neutral"
-                      @click="moveDown(idx)"
+                      @click="moveDown(Number(idx))"
                       :disabled="idx === state.content_json.length - 1"
                       icon="i-heroicons-arrow-down"
                     />
                     <UButton
                       size="xs"
                       color="error"
-                      @click="removeBlock(idx)"
+                      @click="removeBlock(Number(idx))"
                       icon="i-heroicons-trash"
                     />
                   </div>
@@ -150,7 +150,7 @@
                       :key="t"
                       color="primary"
                       size="sm"
-                      @click="setBlockType(idx, t)"
+                      @click="setBlockType(Number(idx), t)"
                     >
                       {{ t.replace("_", " ") }}
                     </UButton>
@@ -185,7 +185,7 @@
                     <input
                       type="file"
                       accept="image/*"
-                      @change="handleFileUpload($event, idx, 'image')"
+                      @change="handleFileUpload($event, Number(idx), 'image')"
                       class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm"
                     />
                     <UInput
@@ -212,7 +212,7 @@
                     <input
                       type="file"
                       accept="video/*"
-                      @change="handleFileUpload($event, idx, 'video')"
+                      @change="handleFileUpload($event, Number(idx), 'video')"
                       class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm"
                     />
                     <video
@@ -256,14 +256,14 @@
                           size="xs"
                           color="error"
                           icon="i-heroicons-trash"
-                          @click="removeOption(idx, oidx)"
+                          @click="removeOption(Number(idx), Number(oidx))"
                         />
                       </div>
                       <UButton
                         color="primary"
                         size="sm"
                         icon="i-heroicons-plus-small"
-                        @click="addOption(idx)"
+                        @click="addOption(Number(idx))"
                       >
                         Tambah Opsi
                       </UButton>
@@ -383,6 +383,10 @@
 
 <script setup lang="ts">
 import * as v from "valibot";
+
+import { useLessonStore } from "~/stores/lesson";
+import { useLmsClassStore } from "~/stores/lmsclass";
+import { useAuthStore } from "~/stores/auth";
 
 const aiLoading = reactive({ summary: false, block: false });
 const props = defineProps<{ classId: number }>();

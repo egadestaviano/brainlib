@@ -16,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+import { useSubscriptionStore } from "~/stores/subscription"
+
 const subscriptionStore = useSubscriptionStore()
 const route = useRoute()
 const router = useRouter()

@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+import { useLmsClassStore } from "~/stores/lmsclass"
 const LmsClassStore = useLmsClassStore()
 </script>
 

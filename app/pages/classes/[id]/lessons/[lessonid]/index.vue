@@ -196,6 +196,8 @@
 </template>
 
 <script setup lang="ts">
+import { useLessonStore } from "~/stores/lesson";
+
 const route = useRoute();
 const classId = computed(() => Number(route.params.id));
 const lessonId = computed(() => Number(route.params.lessonid));

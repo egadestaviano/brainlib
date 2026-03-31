@@ -130,6 +130,9 @@
 </template>
 
 <script setup lang="ts">
+import { useSidebarStore } from "~/stores/sidebar"
+import { useLmsClassStore } from "~/stores/lmsclass"
+
 const sidebar = useSidebarStore()
 const LmsClassStore = useLmsClassStore()
 const route = useRoute()
@@ -158,9 +161,9 @@ function gradientFor(id: number) {
 
 const classesWithColor = computed(() => {
   const source = (LmsClassStore.clases && LmsClassStore.clases.length > 0)
-    ? LmsClassStore.clases
+    ? (LmsClassStore.clases as LmsClass[])
     : []
-  return source.map(c => ({
+  return source.map((c: LmsClass) => ({
     ...c,
     color: `bg-gradient-to-br ${gradientFor(c.id)}`,
   }))

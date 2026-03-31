@@ -30,6 +30,7 @@
 </template>
 
 <script setup lang="ts">
+import { useLmsClassStore } from "~/stores/lmsclass"
 const props = defineProps<{ classId: number }>()
 const lmsClassStore = useLmsClassStore()
 

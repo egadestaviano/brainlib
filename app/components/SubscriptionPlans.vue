@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSubscriptionStore } from "~/stores/subscription"
 const subscriptionStore = useSubscriptionStore()
 
 onMounted(async () => {
