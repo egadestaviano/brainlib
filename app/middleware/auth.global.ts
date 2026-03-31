@@ -1,12 +1,12 @@
 export default defineNuxtRouteMiddleware((to, from) => {
   const token = useCookie<string | null>('token')
-  const isAuthRoute = to.path.startsWith('/auth')
+  const isGuestRoute = to.path === '/' || to.path.startsWith('/auth')
 
-  if (!token.value && !isAuthRoute && to.path !== '/landing-page') {
-    return navigateTo('/landing-page')
+  if (!token.value && !isGuestRoute) {
+    return navigateTo('/')
   }
 
-  if (token.value && isAuthRoute) {
-    return navigateTo('/')
+  if (token.value && (to.path === '/' || to.path.startsWith('/auth'))) {
+    return navigateTo('/dashboard')
   }
 })

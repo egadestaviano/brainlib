@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@nuxtjs/google-fonts": "^3.2.0",
+    "@oxc-parser/binding-win32-x64-msvc": "^0.117.0",
     "@types/node": "^24.5.1",
     "vue-tsc": "^3.0.7"
   }

@@ -3,10 +3,10 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
                 <div class="md:flex md:items-center md:gap-6">
-                    <a class="block text-[#4338CA] flex items-center gap-10" href="#">
+                    <NuxtLink class="block text-[#4338CA] flex items-center gap-10" to="/">
                         <span class="sr-only">Home</span>
                         <span class="text-2xl py-1.5 font-extrabold text-gray-900 leading-[1.1]">BrainLib</span>
-                    </a>
+                    </NuxtLink>
                 </div>
 
                 <div class="flex items-center gap-4">

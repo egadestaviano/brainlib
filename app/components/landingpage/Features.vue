@@ -11,9 +11,9 @@
 
             <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
                 <div
-                    class="group relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
+                    class="group relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover-lift [animation:fade-up_0.8s_ease-out_forwards]">
                     <div
-                        class="inline-flex rounded-xl bg-teal-50 p-4 text-[#4338CA] group-hover:bg-[#4338CA] group-hover:text-white transition-colors">
+                        class="inline-flex rounded-xl bg-teal-50 p-4 text-[#4338CA] group-hover:bg-[#4338CA] group-hover:text-white transition-all group-hover:rotate-6">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-7">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -28,9 +28,9 @@
                 </div>
 
                 <div
-                    class="group relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
+                    class="group relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover-lift [animation:fade-up_0.8s_0.2s_ease-out_forwards]">
                     <div
-                        class="inline-flex rounded-xl bg-teal-50 p-4 text-[#4338CA] group-hover:bg-[#4338CA] group-hover:text-white transition-colors">
+                        class="inline-flex rounded-xl bg-teal-50 p-4 text-[#4338CA] group-hover:bg-[#4338CA] group-hover:text-white transition-all group-hover:-rotate-6">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -45,9 +45,9 @@
                 </div>
 
                 <div
-                    class="group relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
+                    class="group relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover-lift [animation:fade-up_0.8s_0.4s_ease-out_forwards]">
                     <div
-                        class="inline-flex rounded-xl bg-teal-50 p-4 text-[#4338CA] group-hover:bg-[#4338CA] group-hover:text-white transition-colors">
+                        class="inline-flex rounded-xl bg-teal-50 p-4 text-[#4338CA] group-hover:bg-[#4338CA] group-hover:text-white transition-all group-hover:rotate-6">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-7">
                             <path stroke-linecap="round" stroke-linejoin="round"

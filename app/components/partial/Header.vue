@@ -4,6 +4,12 @@
       <button @click="sidebar.toggleCollapse" class="p-1 rounded hover:bg-slate-100">
         <UIcon name="heroicons-bars-3" class="h-6 w-6 text-slate-700" />
       </button>
+      <NuxtLink to="/dashboard" class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <UIcon name="i-heroicons-academic-cap" class="text-white w-5 h-5" />
+        </div>
+        <span class="font-bold text-xl text-slate-900 tracking-tight">BrainLib</span>
+      </NuxtLink>
     </div>
 
     <div class="flex items-center gap-3">

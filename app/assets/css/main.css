@@ -8,4 +8,50 @@
 html.light {
   background-color: white !important;
   color: black !important;
+  scroll-behavior: smooth;
+}
+
+/* Global Subtle Animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.reveal-up {
+  animation: fade-up 0.8s ease-out forwards;
+}
+
+.reveal-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+.btn-anim {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-anim:hover {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+}
+
+.btn-anim:active {
+  transform: scale(0.97);
 }
