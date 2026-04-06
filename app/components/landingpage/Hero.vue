@@ -30,8 +30,11 @@
 
                 <div class="relative animate-in slide-in-from-right duration-1000">
                     <div class="relative z-10 overflow-hidden rounded-2xl transition hover:scale-[1.02] shadow-2xl">
-                        <img src="/image/image_banner.svg"
-                            alt="AI Learning Platform" class="w-full object-cover animate-float">
+                        <img src="/image/image_banner.svg" alt="AI Learning Platform Banner" 
+                            class="w-full h-auto object-cover animate-float"
+                            width="600" height="400"
+                            loading="eager"
+                            fetchpriority="high">
                     </div>
                     <div class="absolute -bottom-6 -right-6 -z-10 h-64 w-64 rounded-2xl bg-teal-500/10 animate-pulse-soft"></div>
                 </div>
