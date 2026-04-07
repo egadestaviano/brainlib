@@ -22,7 +22,7 @@ export default defineNuxtConfig({
       },
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { charset: "utf-16" },
+        { charset: "utf-8" },
         { name: "description", content: "BrainLib is a smart AI-driven Learning Management System to automate assessments, track analytics, and manage education efficiently." },
         { name: "keywords", content: "LMS, AI Learning, Education Automation, BrainLib, Smart Classroom" },
         // Open Graph / Facebook
@@ -43,6 +43,7 @@ export default defineNuxtConfig({
     },
   },
 
+  // @ts-ignore
   googleFonts: {
     families: {
       Inter: [400, 500, 600, 700],
