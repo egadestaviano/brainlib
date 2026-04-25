@@ -153,11 +153,16 @@
 
 <script setup lang="ts">
 import { useLessonStore } from "~/stores/lesson";
+import { useAuthStore } from "~/stores/auth";
+import { LessonService } from "~/services/lessonService";
 
 const route = useRoute();
 const classId = computed(() => Number(route.params.id));
 const lessonId = computed(() => Number(route.params.lessonid));
 const lessonStore = useLessonStore();
+const authStore = useAuthStore();
+const userId = computed(() => authStore.user?.id);
+const storageKey = computed(() => `lesson_result_${userId.value}_${lessonId.value}`);
 
 // pagination
 const currentIndex = ref(0);
@@ -308,24 +313,30 @@ function submitEssayDebounced(idx: number, forceNow = false) {
 }
 
 async function saveResults() {
-  // This is where you would call an API to save results permanently
+  if (!userId.value) return;
+  
   try {
     const payload = {
-      results: results.value,
-      savedAt: new Date().toISOString(),
+      lesson_id: lessonId.value,
+      user_id: userId.value,
+      answers_json: JSON.stringify(results.value),
+      submitted_at: isSubmitted.value ? new Date().toISOString() : null,
     };
-    console.log("Saving results to backend (mock):", payload);
+    
+    await LessonService.saveLessonSubmission(lessonId.value, payload);
+    console.log("Results saved to backend.");
   } catch (err) {
-    console.error(err);
+    console.error("Failed to save results to backend:", err);
   }
 }
 
 function saveProgress() {
-  const storageKey = `lesson_result_${lessonId.value}`;
-  const existingData = localStorage.getItem(storageKey);
+  if (!userId.value) return;
+  
+  const existingData = localStorage.getItem(storageKey.value);
   const parsedExisting = existingData ? JSON.parse(existingData) : {};
 
-  localStorage.setItem(storageKey, JSON.stringify({
+  localStorage.setItem(storageKey.value, JSON.stringify({
     results: results.value,
     score: score.value,
     isSubmitted: isSubmitted.value,
@@ -384,27 +395,54 @@ function resetAll() {
   isSubmitted.value = false;
   currentIndex.value = 0;
 
-  localStorage.removeItem(`lesson_result_${lessonId.value}`);
+  localStorage.removeItem(storageKey.value);
 }
 
 onMounted(async () => {
   await lessonStore.getDetailLesson(lessonId.value);
 
-  // Load from local storage
-  const savedData = localStorage.getItem(`lesson_result_${lessonId.value}`);
-  if (savedData) {
-    const parsed = JSON.parse(savedData);
-    results.value = parsed.results || {};
-    score.value = parsed.score || { correct: 0, wrong: 0 };
-    isSubmitted.value = parsed.isSubmitted || false;
-
-    // Fill local essay and answers for UI
-    for (const [idx, res] of Object.entries(results.value) as any) {
-      if (res.type === 'essay') {
-        localEssay[idx] = res.value;
-      } else if (res.type === 'multiple_choice') {
-        answers[idx] = res.value;
+  // Try to load from backend first
+  if (userId.value) {
+    try {
+      const response = await LessonService.getLessonSubmission(lessonId.value, userId.value);
+      if (response && response.answers_json) {
+        results.value = JSON.parse(response.answers_json);
+        isSubmitted.value = !!response.submitted_at;
+        
+        // Compute score if submitted
+        if (isSubmitted.value) {
+          let correctCount = 0;
+          let wrongCount = 0;
+          for (const [_, res] of Object.entries(results.value) as any) {
+            if (res.type === "multiple_choice") {
+              if (res.isCorrect) correctCount++;
+              else wrongCount++;
+            }
+          }
+          score.value.correct = correctCount;
+          score.value.wrong = wrongCount;
+        }
       }
+    } catch (err) {
+      console.log("No backend submission found or error fetching it.");
+    }
+  }
+
+  // Load from local storage as fallback or for draft
+  const savedData = localStorage.getItem(storageKey.value);
+  if (savedData && !isSubmitted.value) {
+    const parsed = JSON.parse(savedData);
+    results.value = parsed.results || results.value;
+    score.value = parsed.score || score.value;
+    isSubmitted.value = parsed.isSubmitted || isSubmitted.value;
+  }
+
+  // Fill local essay and answers for UI
+  for (const [idx, res] of Object.entries(results.value) as any) {
+    if (res.type === 'essay') {
+      localEssay[Number(idx)] = res.value;
+    } else if (res.type === 'multiple_choice') {
+      answers[Number(idx)] = res.value;
     }
   }
 
