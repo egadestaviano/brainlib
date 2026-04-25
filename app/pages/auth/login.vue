@@ -35,7 +35,7 @@
 
         <div class="flex items-center justify-between">
           <UCheckbox v-model="rememberMe" label="Remember me" name="remember" />
-          <UButton variant="link" to="/auth/forgot-password" size="sm">
+          <UButton variant="link" to="/auth/forgot-password" size="sm" class="cursor-pointer">
             Forgot password?
           </UButton>
         </div>
@@ -45,16 +45,30 @@
           block
           :loading="loading"
           :disabled="loading"
-          class="h-11 text-base font-medium"
+          class="h-11 text-base font-medium cursor-pointer"
         >
           {{ loading ? 'Signing in...' : 'Sign In' }}
+        </UButton>
+
+        <UDivider label="OR" />
+
+        <UButton
+          type="button"
+          block
+          variant="outline"
+          color="neutral"
+          :disabled="loading"
+          @click="handleDemoStudent"
+          class="h-11 text-base font-medium cursor-pointer"
+        >
+          Demo Student
         </UButton>
       </UForm>
 
       <!-- Register -->
       <p class="text-center text-sm text-gray-500">
         Don’t have an account?
-        <UButton variant="link" to="/auth/register" size="sm">
+        <UButton variant="link" to="/auth/register" size="sm" class="cursor-pointer">
           Sign up now
         </UButton>
       </p>
@@ -97,5 +111,11 @@ const handleLogin = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleDemoStudent = async () => {
+  form.value.email = 'student@example.com'
+  form.value.password = 'password'
+  await handleLogin()
 }
 </script>

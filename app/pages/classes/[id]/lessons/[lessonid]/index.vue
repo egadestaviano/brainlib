@@ -7,13 +7,11 @@
     </div>
 
     <!-- empty -->
-    <div
-      v-else-if="
-        !lessonStore.lesson ||
-        !lessonStore.lesson.content_json ||
-        lessonStore.lesson.content_json.length === 0
-      "
-    >
+    <div v-else-if="
+      !lessonStore.lesson ||
+      !lessonStore.lesson.content_json ||
+      lessonStore.lesson.content_json.length === 0
+    ">
       <UCard class="p-4" :bordered="false">
         <template #header>
           <h3 class="text-lg font-semibold">Empty Content</h3>
@@ -25,7 +23,17 @@
     <!-- main -->
     <div v-else>
       <!-- SOAL (per-content) -->
-      <div v-if="!isSubmitted">
+      <div>
+        <!-- Summary results if submitted -->
+        <div v-if="isSubmitted" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h2 class="text-lg font-bold mb-2">📊 Result Summary</h2>
+          <div class="flex gap-4">
+            <p class="text-green-700 font-semibold">Correct: {{ score.correct }}</p>
+            <p class="text-red-600 font-semibold">Wrong: {{ score.wrong }}</p>
+          </div>
+          <p class="text-xs text-gray-500 mt-1 italic">This lesson has been submitted and is now locked.</p>
+        </div>
+
         <div v-if="currentBlock" class="p-4 shadow-sm bg-white">
           <div class="mb-3">
             <h3 class="font-semibold text-lg">
@@ -33,42 +41,28 @@
             </h3>
           </div>
 
-          <div class="space-y-4">
+          <div :class="['space-y-4', { 'pointer-events-none': isSubmitted }]">
             <!-- text -->
             <div v-if="isType(currentBlock, 'text')" class="prose">
               <div v-html="safeHtml(currentBlock.content)"></div>
             </div>
 
             <!-- image -->
-            <div
-              v-else-if="isType(currentBlock, 'image')"
-              class="flex justify-center"
-            >
-              <img
-                :src="currentBlock.url"
-                :alt="currentBlock.alt ?? currentBlock.title ?? 'image'"
-                class="max-h-80 object-contain rounded"
-                @error="onMediaError(currentIndex)"
-              />
+            <div v-else-if="isType(currentBlock, 'image')" class="flex justify-center">
+              <img :src="currentBlock.url" :alt="currentBlock.alt ?? currentBlock.title ?? 'image'"
+                class="max-h-80 object-contain rounded" @error="onMediaError(currentIndex)" />
             </div>
 
             <!-- video -->
             <div v-else-if="isType(currentBlock, 'video')" class="w-full">
-              <video
-                controls
-                class="w-full rounded shadow-md"
-                :src="currentBlock.url"
-                @error="onMediaError(currentIndex)"
-              >
+              <video controls class="w-full rounded shadow-md" :src="currentBlock.url"
+                @error="onMediaError(currentIndex)">
                 Your browser does not support video tags.
               </video>
             </div>
 
             <!-- multiple_choice -->
-            <div
-              v-else-if="isType(currentBlock, 'multiple_choice')"
-              class="space-y-2"
-            >
+            <div v-else-if="isType(currentBlock, 'multiple_choice')" class="space-y-2">
               <p class="text-gray-700">
                 {{
                   currentBlock.title
@@ -79,20 +73,14 @@
 
               <div v-if="currentBlock.options && currentBlock.options.length">
                 <!-- NOTE: bind to answers[currentIndex] -->
-                <URadioGroup
-                  v-model="answers[currentIndex]"
-                  :items="getRadioItems(currentBlock.options)"
+                <URadioGroup v-model="answers[currentIndex]" :items="getRadioItems(currentBlock.options)"
                   @update:modelValue="
                     (val) => computeMCQResult(currentIndex, val)
-                  "
-                />
+                  " />
 
-                <div
-                  v-if="
-                    currentBlock.explanation && results[currentIndex]?.submitted
-                  "
-                  class="mt-2 text-sm text-gray-600"
-                >
+                <div v-if="
+                  currentBlock.explanation && results[currentIndex]?.submitted
+                " class="mt-2 text-sm text-gray-600">
                   <strong>Explanation:</strong> {{ currentBlock.explanation }}
                 </div>
               </div>
@@ -104,33 +92,21 @@
 
             <!-- essay -->
             <div v-else-if="isType(currentBlock, 'essay')">
-              <UTextarea
-                :placeholder="
-                  currentBlock.placeholder ?? 'Write your answer here...'
-                "
-                class="min-h-[120px] w-full"
-                v-model="localEssay[currentIndex]"
-                @blur="submitEssayDebounced(currentIndex, true)"
-                @input="submitEssayDebounced(currentIndex, false)"
-              />
+              <UTextarea :placeholder="currentBlock.placeholder ?? 'Write your answer here...'
+                " class="min-h-[120px] w-full" v-model="localEssay[currentIndex]"
+                @blur="submitEssayDebounced(currentIndex, true)" @input="submitEssayDebounced(currentIndex, false)" />
 
               <div class="flex items-center gap-3 mt-2">
-                <div
-                  v-if="results[currentIndex]?.submitted"
-                  class="text-sm text-green-600"
-                >
+                <div v-if="results[currentIndex]?.submitted" class="text-sm text-green-600">
                   Answer sent
                 </div>
                 <div v-else class="text-sm text-gray-500">
                   The answer will be saved automatically when you stop typing or
                   exit the box.
                 </div>
-                <div
-                  v-if="
-                    currentBlock.explanation && results[currentIndex]?.submitted
-                  "
-                  class="text-sm text-gray-600"
-                >
+                <div v-if="
+                  currentBlock.explanation && results[currentIndex]?.submitted
+                " class="text-sm text-gray-600">
                   • {{ currentBlock.explanation }}
                 </div>
               </div>
@@ -142,10 +118,7 @@
               <strong>{{ getBlockType(currentBlock) }}</strong>
             </div>
 
-            <div
-              v-if="results[currentIndex]?.error"
-              class="text-sm text-red-600"
-            >
+            <div v-if="results[currentIndex]?.error" class="text-sm text-red-600">
               {{ results[currentIndex].error }}
             </div>
           </div>
@@ -154,43 +127,26 @@
         <!-- pagination controls -->
         <div class="flex items-center justify-between mt-6">
           <div class="flex items-center gap-2">
-            <UButton color="neutral" @click="resetAll">Reset All</UButton>
+            <UButton v-if="!isSubmitted" color="neutral" @click="resetAll" :disabled="isSubmitted"
+              class="cursor-pointer">
+              Reset All</UButton>
           </div>
 
           <div class="flex items-center gap-3">
-            <UButton :disabled="currentIndex === 0" size="sm" @click="prevPage"
-              >Prev</UButton
-            >
+            <UButton :disabled="currentIndex === 0" size="sm" @click="prevPage" class="cursor-pointer">Prev</UButton>
             <div class="text-sm text-gray-600">
               Page {{ currentIndex + 1 }} / {{ totalPages }}
             </div>
-            <UButton
-              :disabled="currentIndex >= totalPages - 1"
-              size="sm"
-              @click="nextPage"
-              >Next</UButton
-            >
+            <UButton :disabled="currentIndex >= totalPages - 1" size="sm" @click="nextPage" class="cursor-pointer">Next
+            </UButton>
             <!-- jika di page terakhir, tombol submitAll -->
-            <UButton
-              color="success"
-              @click="submitAll"
-              v-if="currentIndex >= totalPages - 1"
-              >Submit all</UButton
-            >
+            <UButton color="success" @click="submitAll" v-if="currentIndex >= totalPages - 1 && !isSubmitted"
+              class="cursor-pointer">Submit all</UButton>
           </div>
         </div>
       </div>
 
-      <div v-else class="p-4 bg-white rounded-lg shadow">
-        <h2 class="text-xl font-bold mb-4">📊 Answer Results</h2>
-        <p class="text-green-700 font-semibold">Correct: {{ score.correct }}</p>
-        <p class="text-red-600 font-semibold">Wrong: {{ score.wrong }}</p>
 
-        <div class="mt-6 flex gap-2">
-          <UButton color="neutral" @click="resetAll">Reset All</UButton>
-          <UButton color="primary" @click="goToFirstPage">Back</UButton>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -256,6 +212,7 @@ function getRadioItems(options: any[] | undefined) {
 
 // evaluasi multiple choice
 function computeMCQResult(idx: number, value: string | undefined) {
+  if (isSubmitted.value) return;
   if (!lessonStore.lesson?.content_json) return;
   const block = lessonStore.lesson.content_json[idx] as any;
   if (!block) return;
@@ -287,6 +244,8 @@ function computeMCQResult(idx: number, value: string | undefined) {
       submitted: true,
       submittedAt: new Date().toISOString(),
     };
+
+    saveProgress();
   } catch (err) {
     console.error("computeMCQResult error", err);
     setErrorFor(idx, "Errors when evaluating multiple choice answers.");
@@ -303,6 +262,7 @@ watch(
 
 // essay
 function submitEssay(idx: number) {
+  if (isSubmitted.value) return;
   try {
     clearErrorFor(idx);
     const block = lessonStore.lesson?.content_json?.[idx] as any;
@@ -322,6 +282,7 @@ function submitEssay(idx: number) {
       submitted: true,
       submittedAt: new Date().toISOString(),
     };
+    saveProgress();
   } catch (err) {
     console.error(err);
     setErrorFor(idx, "Error.");
@@ -347,15 +308,29 @@ function submitEssayDebounced(idx: number, forceNow = false) {
 }
 
 async function saveResults() {
+  // This is where you would call an API to save results permanently
   try {
     const payload = {
       results: results.value,
       savedAt: new Date().toISOString(),
     };
-    console.log("Saving results payload", payload);
+    console.log("Saving results to backend (mock):", payload);
   } catch (err) {
     console.error(err);
   }
+}
+
+function saveProgress() {
+  const storageKey = `lesson_result_${lessonId.value}`;
+  const existingData = localStorage.getItem(storageKey);
+  const parsedExisting = existingData ? JSON.parse(existingData) : {};
+
+  localStorage.setItem(storageKey, JSON.stringify({
+    results: results.value,
+    score: score.value,
+    isSubmitted: isSubmitted.value,
+    submittedAt: isSubmitted.value ? (parsedExisting.submittedAt || new Date().toISOString()) : null
+  }));
 }
 
 function prevPage() {
@@ -375,6 +350,7 @@ function goToFirstPage() {
 }
 
 async function submitAll() {
+  if (isSubmitted.value) return;
   lessonStore.lesson?.content_json?.forEach((b: any, i: any) => {
     if (b.type === "essay" && !results.value[i]) submitEssay(i);
   });
@@ -393,10 +369,13 @@ async function submitAll() {
   score.value.wrong = wrongCount;
   isSubmitted.value = true;
 
+  saveProgress();
   await saveResults();
 }
 
 function resetAll() {
+  if (isSubmitted.value) return;
+
   Object.keys(results.value).forEach((k) => delete results.value[Number(k)]);
   Object.keys(localEssay).forEach((k) => delete localEssay[Number(k)]);
   Object.keys(answers).forEach((k) => delete answers[Number(k)]);
@@ -404,11 +383,32 @@ function resetAll() {
   score.value.wrong = 0;
   isSubmitted.value = false;
   currentIndex.value = 0;
+
+  localStorage.removeItem(`lesson_result_${lessonId.value}`);
 }
 
 onMounted(async () => {
   await lessonStore.getDetailLesson(lessonId.value);
-  lessonStore.lesson?.content_json?.forEach((b: ContentJson, i: number) => {
+
+  // Load from local storage
+  const savedData = localStorage.getItem(`lesson_result_${lessonId.value}`);
+  if (savedData) {
+    const parsed = JSON.parse(savedData);
+    results.value = parsed.results || {};
+    score.value = parsed.score || { correct: 0, wrong: 0 };
+    isSubmitted.value = parsed.isSubmitted || false;
+
+    // Fill local essay and answers for UI
+    for (const [idx, res] of Object.entries(results.value) as any) {
+      if (res.type === 'essay') {
+        localEssay[idx] = res.value;
+      } else if (res.type === 'multiple_choice') {
+        answers[idx] = res.value;
+      }
+    }
+  }
+
+  lessonStore.lesson?.content_json?.forEach((b: any, i: number) => {
     if (b.type === "essay") localEssay[i] = localEssay[i] ?? "";
   });
 });

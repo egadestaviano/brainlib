@@ -1,7 +1,7 @@
 <template>
   <header class="flex items-center justify-between px-6 py-3 bg-white shadow-sm">
     <div class="flex items-center gap-4">
-      <button @click="sidebar.toggleCollapse" class="p-1 rounded hover:bg-slate-100">
+      <button @click="sidebar.toggleCollapse" class="p-1 rounded hover:bg-slate-100 cursor-pointer">
         <UIcon name="heroicons-bars-3" class="h-6 w-6 text-slate-700" />
       </button>
       <NuxtLink to="/dashboard" class="flex items-center gap-2">
@@ -25,7 +25,7 @@
             <nav class="flex flex-col">
 
               <!-- Create class modal -->
-              <UModal v-model:open="modalCreate" title="Create New Class">
+              <UModal v-if="canCreateClass" v-model:open="modalCreate" title="Create New Class">
                 <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer">
                   Create class
                 </UButton>
@@ -42,10 +42,10 @@
                       </UFormField>
 
                       <div class="flex justify-end gap-2">
-                        <UButton @click.prevent="handleCancel" type="button" color="secondary" variant="soft">
+                        <UButton @click.prevent="handleCancel" type="button" color="secondary" variant="soft" class="cursor-pointer">
                           Cancel
                         </UButton>
-                        <UButton type="submit" color="primary" :loading="LmsClassStore.loading">
+                        <UButton type="submit" color="primary" :loading="LmsClassStore.loading" class="cursor-pointer">
                           Create
                         </UButton>
                       </div>
@@ -72,10 +72,10 @@
                       </div>
 
                       <div class="flex justify-end gap-2">
-                        <UButton @click.prevent="handleCancelJoin" type="button" color="secondary" variant="soft">
+                        <UButton @click.prevent="handleCancelJoin" type="button" color="secondary" variant="soft" class="cursor-pointer">
                           Cancel
                         </UButton>
-                        <UButton type="submit" color="primary" :loading="LmsClassStore.loading">
+                        <UButton type="submit" color="primary" :loading="LmsClassStore.loading" class="cursor-pointer">
                           Join
                         </UButton>
                       </div>
@@ -172,6 +172,12 @@ const handleCancelJoin = () => {
   joinClassState.code = ''
   modalJoin.value = false
 }
+
+const canCreateClass = computed(() => {
+  if (!auth.user) return false;
+  if (auth.user.roles?.includes("admin")) return true;
+  return !auth.user.roles?.includes("student");
+});
 
 const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
   try {
