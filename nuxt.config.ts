@@ -57,7 +57,7 @@ export default defineNuxtConfig({
   },
 
   pinia: {
-    storesDirs: ["./app/stores"],
+    storesDirs: ["./app/stores/**"],
   },
 
   typescript: {

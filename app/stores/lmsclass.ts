@@ -4,6 +4,7 @@ interface State {
   clases: LmsClass[] | null
   classDetail: LmsClass | null
   loading: boolean
+  detailLoading: boolean
   error: string | null
 }
 
@@ -12,6 +13,7 @@ export const useLmsClassStore = defineStore('lmsclass', {
     clases: null,
     classDetail: null,
     loading: false,
+    detailLoading: false,
     error: null,
   }),
   actions: {
@@ -50,7 +52,8 @@ export const useLmsClassStore = defineStore('lmsclass', {
     },
 
     async getDetailsClass(id: number) {
-      this.loading = true
+      this.detailLoading = true
+      this.classDetail = null
       this.error = null
       try {
         const res = await classService.getDetail(id)
@@ -60,7 +63,7 @@ export const useLmsClassStore = defineStore('lmsclass', {
         this.error = err?.response?.data?.message || err.message || "Failed to Get class"
         throw err
       } finally {
-        this.loading = false
+        this.detailLoading = false
       }
     },
 

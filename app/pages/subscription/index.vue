@@ -1,43 +1,40 @@
 <template>
-    <div class="container mx-auto py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Subscription Plans</h1>
-            <UButton @click="refresh" :loading="subscriptionStore.loading">
-                Refresh
-            </UButton>
-        </div>
-
-        <div v-if="successMessage" class="mb-4 p-4 bg-green-100 text-green-800 rounded">
-            {{ successMessage }}
-        </div>
-
-        <SubscriptionPlans />
+  <div class="max-w-4xl mx-auto py-8">
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-slate-900">Subscription Plans</h1>
+      <p class="text-sm text-slate-500 mt-1">Choose the plan that works best for you</p>
     </div>
+
+    <UAlert
+      v-if="successMessage"
+      color="success"
+      :title="successMessage"
+      class="mb-6"
+      :close-button="{ onClick: () => successMessage = '' }"
+    />
+
+    <SubscriptionPlans />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { useSubscriptionStore } from "~/stores/subscription"
+import { useSubscriptionStore } from '~/stores/subscription'
 
 const subscriptionStore = useSubscriptionStore()
 const route = useRoute()
 const router = useRouter()
 const successMessage = ref('')
 
-const refresh = async () => {
-    await subscriptionStore.fetchPlans()
-    await subscriptionStore.fetchCurrentSubscription()
-}
-
 onMounted(async () => {
-    await refresh()
+  await subscriptionStore.fetchPlans()
+  await subscriptionStore.fetchCurrentSubscription()
 
-    const status = route.query.status
-    const subId = route.query.sub_id
+  const status = route.query.status
+  const subId = route.query.sub_id
 
-    if (status === 'success' && subId) {
-        successMessage.value = `Subscription #${subId} activated successfully!`
-
-        router.replace({ path: route.path, query: {} })
-    }
+  if (status === 'success' && subId) {
+    successMessage.value = `Subscription #${subId} activated successfully!`
+    router.replace({ path: route.path, query: {} })
+  }
 })
 </script>

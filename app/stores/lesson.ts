@@ -4,6 +4,7 @@ interface State {
   lesson: Lessons | null
   loading: boolean
   error: string | null
+  submissions: Record<string, any>
 }
 
 export const useLessonStore = defineStore('lesson', {
@@ -11,6 +12,7 @@ export const useLessonStore = defineStore('lesson', {
     lesson: null,
     loading: false,
     error: null,
+    submissions: {},
   }),
 
   actions: {
@@ -58,6 +60,20 @@ export const useLessonStore = defineStore('lesson', {
     clearLessons() {
       this.lesson = null
       this.error = null
+    },
+
+    saveSubmission(userId: number | string, lessonId: number, payload: any) {
+      const key = `${userId}_${lessonId}`
+      if (payload === null) {
+        delete this.submissions[key]
+      } else {
+        this.submissions[key] = payload
+      }
+    },
+
+    getSubmission(userId: number | string, lessonId: number) {
+      const key = `${userId}_${lessonId}`
+      return this.submissions[key] || null
     },
   },
 

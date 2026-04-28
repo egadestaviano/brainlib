@@ -1,6 +1,6 @@
 <template>
   <div class="w-full max-w-5xl">
-    <div v-if="isAllowed" class="mb-3">
+    <div class="mb-3">
       <UButton
         color="primary"
         size="md"
@@ -67,7 +67,6 @@
                 color="neutral"
                 size="md"
                 @click.stop="closeLessonModal"
-                class="cursor-pointer"
                 >Cancel
               </UButton>
               <UButton
@@ -75,7 +74,6 @@
                 color="primary"
                 size="md"
                 :loading="lmsClassStore.loading"
-                class="cursor-pointer"
               >
                 Next: Create Content
               </UButton>
@@ -325,12 +323,12 @@
                     size="md"
                     :loading="aiLoading.block"
                     @click="aiGenerateBlock"
-                    class="whitespace-nowrap cursor-pointer"
+                    class="whitespace-nowrap"
                   >
                     <UIcon name="i-heroicons-sparkles" class="h-4 w-4" />
                     Generate Ai
                   </UButton>
-                  <span class="text-xs text-gray-500 text-center "
+                  <span class="text-xs text-gray-500 text-center"
                     >or create manual:</span
                   >
                   <UButton
@@ -338,7 +336,7 @@
                     icon="i-heroicons-plus-circle"
                     size="sm"
                     @click="addEmptyBlock"
-                    class="whitespace-nowrap cursor-pointer"
+                    class="whitespace-nowrap"
                   >
                     Add Block
                   </UButton>
@@ -352,7 +350,6 @@
               color="warning"
               icon="i-heroicons-arrow-left"
               @click="goToPrevious"
-              class="cursor-pointer"
             >
               Back
             </UButton>
@@ -367,14 +364,12 @@
             <div class="text-sm text-gray-600">Review JSON before saving</div>
             <div class="flex gap-2">
               <UButton color="neutral" @click="closeLessonModal"
-              class="cursor-pointer"
                 >Cancel</UButton
               >
               <UButton
                 color="success"
                 :loading="lmsClassStore.loading"
                 @click="submitFinal"
-                class="cursor-pointer"
               >
                 Save Lesson
               </UButton>
@@ -389,36 +384,15 @@
 <script setup lang="ts">
 import * as v from "valibot";
 
-import { useLessonStore } from "~/stores/lesson";
-import { useLmsClassStore } from "~/stores/lmsclass";
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from '~/stores/auth'
+import { useLessonStore } from '~/stores/lesson'
+import { useLmsClassStore } from '~/stores/lmsclass'
 
 const aiLoading = reactive({ summary: false, block: false });
 const props = defineProps<{ classId: number }>();
 const lessonStore = useLessonStore();
 const lmsClassStore = useLmsClassStore();
 const authStore = useAuthStore();
-
-const isAllowed = computed(() => {
-  if (!authStore.user) return false;
-  
-  // 1. Global Admin always allowed
-  if (authStore.user.roles?.includes("admin")) return true;
-
-  // 2. Global Student always restricted (even if they are class creator)
-  if (authStore.user.roles?.includes("student")) return false;
-
-  if (!lmsClassStore.classDetail) return false;
-
-  // 3. Class creator allowed (if not a student)
-  if (lmsClassStore.classDetail.creator.id === authStore.user.id) return true;
-
-  // 4. Check membership role in this class
-  const myMembership = lmsClassStore.classDetail.memberships?.find(
-    (m: any) => m.user.id === authStore.user?.id
-  );
-  return myMembership?.role === "teacher" || myMembership?.role === "admin";
-});
 
 // modal
 const modalOpen = ref(false);

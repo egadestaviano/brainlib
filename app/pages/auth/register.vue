@@ -1,133 +1,155 @@
 <template>
-  <div
-    class="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4"
-  >
-    <UCard
-      class="w-full max-w-md shadow-md border border-gray-200 dark:border-gray-800 rounded-xl p-8 space-y-6"
-    >
-      <div class="text-center space-y-3 mb-10">
-        <h1 class="text-2xl font-bold">Sign Up to BrainLib</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          Register to start your learning
-        </p>
-      </div>
-      <UForm :state="form" @submit="handleRegister" class="space-y-5">
-        <UFormField label="Email" name="email" required>
-          <UInput
-            class="w-full"
-            v-model="form.email"
-            type="email"
-            size="lg"
-            placeholder="Enter your email"
-            autocomplete="email"
-          />
-        </UFormField>
-        <UFormField label="Password" name="password" required>
-          <UInput
-            class="w-full"
-            v-model="form.password"
-            type="password"
-            size="lg"
-            placeholder="Create a password"
-            autocomplete="new-password"
-          />
-        </UFormField>
-        <UFormField label="Confirm Password" name="confirm_password" required>
-          <UInput
-            class="w-full"
-            v-model="confirmPassword"
-            type="password"
-            size="lg"
-            placeholder="Confirm your password"
-            autocomplete="new-password"
-          />
-        </UFormField>
+  <div class="space-y-8">
+    <div class="space-y-2">
+      <h1 class="text-2xl font-bold text-slate-900">Create your BrainLib account</h1>
+      <p class="text-sm text-slate-500">Start your learning journey today</p>
+    </div>
+
+    <UForm :state="form" @submit="handleRegister" class="space-y-5">
+      <UFormField label="Email" name="email" required>
+        <UInput
+          class="w-full"
+          v-model="form.email"
+          type="email"
+          size="lg"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+      </UFormField>
+
+      <UFormField label="Password" name="password" required>
+        <UInput
+          class="w-full"
+          v-model="form.password"
+          type="password"
+          size="lg"
+          placeholder="Create a password"
+          autocomplete="new-password"
+        />
+      </UFormField>
+
+      <UFormField label="Confirm Password" name="confirmPassword" required>
+        <UInput
+          class="w-full"
+          v-model="confirmPassword"
+          type="password"
+          size="lg"
+          placeholder="Repeat your password"
+          autocomplete="new-password"
+        />
+      </UFormField>
+
+      <div class="flex items-center">
         <UCheckbox
           v-model="form.is_active"
-          label="I agree to the terms and conditions"
+          label="I agree to the Terms of Service"
           name="terms"
-          required
         />
+      </div>
+
+      <UButton
+        type="submit"
+        block
+        :loading="loading"
+        :disabled="loading || !isPasswordMatch"
+        color="neutral"
+        class="h-11 text-base font-medium"
+      >
+        {{ loading ? 'Creating account...' : 'Create Account' }}
+      </UButton>
+
+      <div class="relative py-2">
+        <div class="absolute inset-0 flex items-center">
+          <span class="w-full border-t border-slate-200" />
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+          <span class="bg-white px-2 text-slate-500">Or use demo accounts</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
         <UButton
-          type="submit"
-          block
-          :loading="loading"
-          :disabled="loading || !isPasswordMatch"
-          class="h-11 text-base font-medium"
+          variant="outline"
+          color="neutral"
+          @click="registerAsDemo('teacher@example.com')"
+          :disabled="loading"
+          class="justify-center"
         >
-          {{ loading ? "Registering..." : "Sign Up" }}
+          Demo Teacher
         </UButton>
-      </UForm>
-      <p class="text-center text-sm text-gray-500">
-        Already have an account?
-        <UButton variant="link" to="/auth/login" size="sm">
-          Sign in now
+        <UButton
+          variant="outline"
+          color="neutral"
+          @click="registerAsDemo('student@example.com')"
+          :disabled="loading"
+          class="justify-center"
+        >
+          Demo Student
         </UButton>
-      </p>
-    </UCard>
+      </div>
+    </UForm>
+
+    <p class="text-center text-sm text-slate-500">
+      Already have an account?
+      <NuxtLink to="/auth/login" class="font-medium text-slate-900 hover:underline">
+        Sign in
+      </NuxtLink>
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from '~/stores/auth'
 
-const router = useRouter();
-const authStore = useAuthStore();
+const router = useRouter()
+const authStore = useAuthStore()
 
 definePageMeta({
-  layout: "auth",
-});
+  layout: 'auth'
+})
 
-const loading = ref(false);
-const confirmPassword = ref("");
+const loading = ref(false)
+const confirmPassword = ref('')
 const form = ref<AuthRegister>({
-  email: "",
-  password: "",
-  is_active: false,
-});
+  email: '',
+  password: '',
+  is_active: false
+})
 
 const isPasswordMatch = computed(() => {
-  return form.value.password === confirmPassword.value;
-});
+  return form.value.password === confirmPassword.value
+})
 
 const handleRegister = async () => {
   if (!isPasswordMatch.value) {
     useToast().add({
-      title: "Error",
-      description: "Password dan konfirmasi password tidak cocok",
-      color: "warning",
-    });
-    return;
+      title: 'Error',
+      description: 'Password and confirmation password do not match',
+      color: 'warning'
+    })
+    return
   }
 
   try {
-    loading.value = true;
-    await authStore.register(form.value);
-    await router.push("/");
+    loading.value = true
+    await authStore.register(form.value)
+    await router.push('/home')
   } catch (error: any) {
     useToast().add({
-      title: "Error",
-      description: error.message || "Registrasi gagal, silakan coba lagi",
-      color: "warning",
-    });
+      title: 'Error',
+      description: error.message || 'Registration failed, please try again',
+      color: 'warning'
+    })
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
-</script>
-
-<style>
-:root {
-  --primary-50: 238 242 255;
-  --primary-100: 224 231 255;
-  --primary-200: 199 210 254;
-  --primary-300: 165 180 252;
-  --primary-400: 129 140 248;
-  --primary-500: 99 102 241;
-  --primary-600: 79 70 229;
-  --primary-700: 67 56 202;
-  --primary-800: 55 48 163;
-  --primary-900: 49 46 129;
-  --primary-950: 30 27 75;
 }
-</style>
+
+const registerAsDemo = (email: string) => {
+  form.value.email = email;
+  form.value.password = 'password';
+  confirmPassword.value = 'password';
+  form.value.is_active = true;
+  handleRegister();
+}
+</script>

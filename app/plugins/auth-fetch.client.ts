@@ -1,9 +1,9 @@
+import { useAuthStore } from '~/stores/auth'
+import { useLmsClassStore } from '~/stores/lmsclass'
+
 export default defineNuxtPlugin({
   name: 'auth-fetch-current-user',
   async setup (nuxtApp) {
-    const { useAuthStore } = await import("~/stores/auth")
-    const { useLmsClassStore } = await import("~/stores/lmsclass")
-    
     const token = useCookie<string | null>('token')
     const authStore = useAuthStore()
     const classStore = useLmsClassStore()

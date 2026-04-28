@@ -1,32 +1,34 @@
 <template>
-    <div>
-        <div class="flex flex-row mt-4">
-            <!-- Dialog (internal) -->
-            <ClassComLessonDialog :class-id="classId" />
-        </div>
-
-        <!-- lessons list -->
-        <ul v-if="lessons && lessons.length > 0"
-            class="bg-white rounded-md border border-gray-200 p-4 mt-2 flex flex-col gap-3">
-            <li v-for="i in lessons" :key="i.id" class="flex flex-col border border-gray-300 p-5 rounded-md">
-                <NuxtLink :to="'/classes/' + classId + '/lessons/' + i.id">
-                    <div class="flex flex-row items-center">
-                        <UIcon name="heroicons-book-open" class="text-lg font-bold mr-3" />
-                        <h2 class="text-lg font-black">{{ i.title }}</h2>
-                    </div>
-                    <div class="flex flex-row">
-                        <span class="text-sm">Summary: {{ i.summary }}</span>
-                    </div>
-                </NuxtLink>
-            </li>
-        </ul>
-
-        <div v-else class="bg-white rounded-md border border-gray-200 p-4 mt-2 text-center text-gray-500">
-            <UIcon name="heroicons-information-circle" class="text-2xl mx-auto mb-2 text-gray-400" />
-            <p class="font-medium">No lessons are available yet.</p>
-            <p v-if="isAllowed" class="text-sm">Click the “Add Lesson” button to start creating a lesson.</p>
-        </div>
+  <div>
+    <div class="flex flex-row mt-4" v-if="isTeacherOrAdmin">
+      <ClassComLessonDialog :class-id="classId" />
     </div>
+
+    <div v-if="lessons && lessons.length > 0" class="mt-3 space-y-2">
+      <NuxtLink v-for="item in lessons" :key="item.id" :to="'/classes/' + classId + '/lessons/' + item.id"
+        class="flex items-center gap-4 bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-slate-300 transition-all duration-200 group">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 text-slate-600 shrink-0">
+          <UIcon name="heroicons-book-open" class="h-5 w-5" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-semibold text-slate-900 truncate">{{ item.title }}</h3>
+          <p v-if="item.summary" class="text-sm text-slate-500 mt-0.5 line-clamp-1">{{ item.summary }}</p>
+        </div>
+        <UIcon name="heroicons-chevron-right"
+          class="h-5 w-5 text-slate-400 group-hover:text-slate-600 transition-colors shrink-0" />
+      </NuxtLink>
+    </div>
+
+    <div v-else class="bg-white rounded-xl border border-slate-200 p-8 mt-3 text-center">
+      <div class="flex justify-center mb-3">
+        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+          <UIcon name="heroicons-book-open" class="h-6 w-6 text-slate-400" />
+        </div>
+      </div>
+      <p class="font-medium text-slate-700">No lessons available yet</p>
+      <p class="text-sm text-slate-500 mt-1">Click "Add Lesson" to start creating content.</p>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -38,25 +40,5 @@ const lmsClassStore = useLmsClassStore()
 const authStore = useAuthStore()
 
 const lessons = computed(() => lmsClassStore.classDetail?.lessons || [])
-
-const isAllowed = computed(() => {
-  if (!authStore.user) return false;
-  
-  // 1. Global Admin always allowed
-  if (authStore.user.roles?.includes("admin")) return true;
-
-  // 2. Global Student always restricted (even if they are class creator)
-  if (authStore.user.roles?.includes("student")) return false;
-
-  if (!lmsClassStore.classDetail) return false;
-
-  // 3. Class creator allowed (if not a student)
-  if (lmsClassStore.classDetail.creator.id === authStore.user.id) return true;
-
-  // 4. Check membership role in this class
-  const myMembership = lmsClassStore.classDetail.memberships?.find(
-    (m: any) => m.user.id === authStore.user?.id
-  );
-  return myMembership?.role === "teacher" || myMembership?.role === "admin";
-});
+const isTeacherOrAdmin = computed(() => authStore.user?.roles?.includes('admin') || authStore.user?.roles?.includes('teacher'))
 </script>
