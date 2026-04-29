@@ -36,7 +36,14 @@
 
     <!-- Main Content -->
     <div v-else>
-      <div v-if="!isSubmitted">
+      <!-- Teacher Tabs -->
+      <div v-if="isTeacherOrAdmin" class="flex gap-4 border-b border-slate-200 mb-6">
+        <button @click="teacherTab = 'content'" :class="['pb-3 px-2 border-b-2 font-medium text-sm transition-colors cursor-pointer', teacherTab === 'content' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700']">Content</button>
+        <button @click="teacherTab = 'grades'" :class="['pb-3 px-2 border-b-2 font-medium text-sm transition-colors cursor-pointer', teacherTab === 'grades' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700']">Grades</button>
+      </div>
+
+      <div v-if="!isTeacherOrAdmin || teacherTab === 'content'">
+        <div v-if="!isSubmitted">
         <!-- Progress Bar -->
         <div class="mb-8">
           <div class="flex items-center justify-between text-sm text-slate-500 mb-3">
@@ -225,11 +232,11 @@
 
         <!-- Pagination Controls -->
         <div class="flex items-center justify-between mt-8">
-          <UButton v-if="!isReviewMode" variant="ghost" color="neutral" @click="resetAll" class="text-slate-500 cursor-pointer">
+          <UButton v-if="!isReviewMode && !isStudent" variant="ghost" color="neutral" @click="resetAll" class="text-slate-500 cursor-pointer">
             <UIcon name="heroicons-arrow-path" class="h-4 w-4 mr-1.5" />
             Reset
           </UButton>
-          <UButton v-else variant="ghost" color="primary" @click="isSubmitted = true" class="cursor-pointer">
+          <UButton v-else-if="!isTeacherOrAdmin" variant="ghost" color="primary" @click="isSubmitted = true" class="cursor-pointer">
             <UIcon name="heroicons-trophy" class="h-4 w-4 mr-1.5" />
             View Score
           </UButton>
@@ -304,7 +311,7 @@
           </div>
 
           <div class="flex justify-center gap-3">
-            <UButton variant="outline" color="neutral" @click="resetAll" class="cursor-pointer">
+            <UButton v-if="!isStudent" variant="outline" color="neutral" @click="resetAll" class="cursor-pointer">
               <UIcon name="heroicons-arrow-path" class="h-4 w-4 mr-1.5" />
               Try Again
             </UButton>
@@ -312,6 +319,37 @@
               <UIcon name="heroicons-eye" class="h-4 w-4 mr-1.5" />
               Review Answers
             </UButton>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Grades Tab -->
+      <div v-if="isTeacherOrAdmin && teacherTab === 'grades'" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="font-bold text-lg text-slate-900">Student Grades</h3>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <div v-for="grade in studentGrades" :key="grade.user.id" class="px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-semibold shrink-0">
+                {{ grade.user.profile?.display_name?.[0]?.toUpperCase() || 'U' }}
+              </div>
+              <div class="min-w-0">
+                <p class="font-medium text-slate-900 truncate">{{ grade.user.profile?.display_name }}</p>
+                <p class="text-xs text-slate-500 truncate">{{ grade.user.email }}</p>
+              </div>
+            </div>
+            <div v-if="grade.submitted" class="text-right shrink-0">
+              <p class="font-semibold text-emerald-600">{{ grade.score.correct }} / {{ grade.score.correct + grade.score.wrong }}</p>
+              <p class="text-xs text-slate-500">Correct</p>
+            </div>
+            <div v-else class="text-right shrink-0">
+              <span class="inline-block px-2.5 py-1 bg-slate-100 text-slate-500 text-xs font-medium rounded-full">Not submitted</span>
+            </div>
+          </div>
+          <div v-if="studentGrades.length === 0" class="px-8 py-12 text-center text-slate-500">
+            No students found in this class.
           </div>
         </div>
       </div>
@@ -327,8 +365,25 @@ const route = useRoute()
 const classId = computed(() => Number(route.params.id))
 const lessonId = computed(() => Number(route.params.lessonid))
 const lessonStore = useLessonStore()
+const lmsClassStore = useLmsClassStore()
 const authStore = useAuthStore()
 const userId = computed(() => authStore.user?.id || 'guest')
+
+const isTeacherOrAdmin = computed(() => authStore.user?.roles?.includes('admin') || authStore.user?.roles?.includes('teacher'))
+const isStudent = computed(() => authStore.user?.roles?.includes('student'))
+const teacherTab = ref('content')
+
+const studentGrades = computed(() => {
+  const members = lmsClassStore.classDetail?.memberships || []
+  return members.map((m: any) => {
+    const saved = lessonStore.getSubmission(m.user.id, lessonId.value)
+    return {
+      user: m.user,
+      score: saved?.score || { correct: 0, wrong: 0 },
+      submitted: !!saved
+    }
+  })
+})
 
 const currentIndex = ref(0)
 const isSubmitted = ref(false)
@@ -561,6 +616,18 @@ function resetAll() {
 
 onMounted(async () => {
   await lessonStore.getDetailLesson(lessonId.value)
+  if (isTeacherOrAdmin.value && !lmsClassStore.classDetail) {
+    await lmsClassStore.getDetailsClass(classId.value)
+  }
+  
+  if (isTeacherOrAdmin.value) {
+    isReviewMode.value = true
+    isSubmitted.value = false
+    lessonStore.lesson?.content_json?.forEach((b: any, i: number) => {
+      if (b.type === 'essay') localEssay[i] = localEssay[i] ?? ''
+    })
+    return
+  }
   
   const saved = lessonStore.getSubmission(userId.value, lessonId.value)
   if (saved) {
