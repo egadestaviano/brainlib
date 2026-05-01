@@ -10,7 +10,7 @@ async function apiFetch<T>(
   } = {}
 ): Promise<T> {
   const config = useRuntimeConfig()
-  const token = useCookie<string | null>('token')
+  const token = useCookie<string | null>('token', { path: '/' })
 
   try {
     return await $fetch<T>(endpoint, {

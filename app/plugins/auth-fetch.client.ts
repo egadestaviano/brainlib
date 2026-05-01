@@ -8,19 +8,20 @@ export default defineNuxtPlugin({
     const authStore = useAuthStore()
     const classStore = useLmsClassStore()
 
-    try {
-      await classStore.getMyClass()
-    } catch (error) {
-      console.error('Failed Fetch My Class', error);
-      
-    }
-    
-    if (token && !authStore.user) {
+    if (token.value) {
       try {
-        await authStore.fetchCurrentUser()
-      } catch (err) {
-        console.error('Failed fetch user:', err)
-        authStore.clearAuth()
+        await classStore.getMyClass()
+      } catch (error) {
+        console.error('Failed Fetch My Class', error);
+      }
+      
+      if (!authStore.user) {
+        try {
+          await authStore.fetchCurrentUser()
+        } catch (err) {
+          console.error('Failed fetch user:', err)
+          authStore.clearAuth()
+        }
       }
     }
   }

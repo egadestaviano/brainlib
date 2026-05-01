@@ -230,9 +230,11 @@
 
 <script setup lang="ts">
 import { useSubscriptionStore } from '~/stores/subscription'
+import { useAuthStore } from '~/stores/auth'
 import { api } from '~/utils/api'
 
 const subscriptionStore = useSubscriptionStore()
+const authStore = useAuthStore()
 const config = useRuntimeConfig()
 const paypalLoaded = ref(false)
 const toast = useToast()
@@ -437,7 +439,9 @@ const initPayPalButtons = () => {
 onMounted(async () => {
   try {
     await subscriptionStore.fetchPlans()
-    await subscriptionStore.fetchCurrentSubscription()
+    if (authStore.token) {
+      await subscriptionStore.fetchCurrentSubscription()
+    }
   } catch (err) {
     console.error('Failed to fetch initial subscription data:', err)
   }

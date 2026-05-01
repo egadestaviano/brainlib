@@ -67,7 +67,7 @@ export const useAuthStore = defineStore('auth', {
       this.token = response.token
       this.isAuthenticated = true
       
-      const tokenCookie = useCookie('token')
+      const tokenCookie = useCookie('token', { path: '/' })
       tokenCookie.value = response.token
     },
 
@@ -76,7 +76,7 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = false
       this.user = null
       
-      const tokenCookie = useCookie('token')
+      const tokenCookie = useCookie('token', { path: '/' })
       tokenCookie.value = null
     },
 
