@@ -60,7 +60,17 @@ export const useSubscriptionStore = defineStore("subscription", {
       }
     },
 
+    async recordAiUsage() {
+      try {
+        await subscriptionService.recordAiUsage();
+        await this.fetchCurrentSubscription(); // Refresh usage info
+      } catch (error) {
+        console.error("Failed to record AI usage", error);
+        throw error;
+      }
+    },
     clearSubscription() {
+
       this.subscription = null;
       this.plans = [];
     },

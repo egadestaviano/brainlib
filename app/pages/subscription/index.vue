@@ -1,10 +1,5 @@
 <template>
   <div class="max-w-4xl mx-auto py-8">
-    <div class="mb-8">
-      <h1 class="text-2xl font-bold text-slate-900">Subscription Plans</h1>
-      <p class="text-sm text-slate-500 mt-1">Choose the plan that works best for you</p>
-    </div>
-
     <UAlert
       v-if="successMessage"
       color="success"

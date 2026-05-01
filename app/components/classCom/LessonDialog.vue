@@ -100,7 +100,7 @@
               <template #header>
                 <div class="flex items-center justify-between">
                   <div class="font-semibold text-base text-gray-800">
-                    {{ Number(idx) + 1 }}. [{{ block.type || "unspecified" }}]
+                    {{ idx + 1 }}. [{{ block.type || "unspecified" }}]
                     <span class="text-gray-500">{{
                       block.title || "(Untitled)"
                     }}</span>
@@ -109,21 +109,21 @@
                     <UButton
                       size="xs"
                       color="neutral"
-                      @click="moveUp(Number(idx))"
+                      @click="moveUp(idx)"
                       :disabled="idx === 0"
                       icon="i-heroicons-arrow-up"
                     />
                     <UButton
                       size="xs"
                       color="neutral"
-                      @click="moveDown(Number(idx))"
+                      @click="moveDown(idx)"
                       :disabled="idx === state.content_json.length - 1"
                       icon="i-heroicons-arrow-down"
                     />
                     <UButton
                       size="xs"
                       color="error"
-                      @click="removeBlock(Number(idx))"
+                      @click="removeBlock(idx)"
                       icon="i-heroicons-trash"
                     />
                   </div>
@@ -150,7 +150,7 @@
                       :key="t"
                       color="primary"
                       size="sm"
-                      @click="setBlockType(Number(idx), t)"
+                      @click="setBlockType(idx, t)"
                     >
                       {{ t.replace("_", " ") }}
                     </UButton>
@@ -185,7 +185,7 @@
                     <input
                       type="file"
                       accept="image/*"
-                      @change="handleFileUpload($event, Number(idx), 'image')"
+                      @change="handleFileUpload($event, idx, 'image')"
                       class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm"
                     />
                     <UInput
@@ -212,7 +212,7 @@
                     <input
                       type="file"
                       accept="video/*"
-                      @change="handleFileUpload($event, Number(idx), 'video')"
+                      @change="handleFileUpload($event, idx, 'video')"
                       class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm"
                     />
                     <video
@@ -256,14 +256,14 @@
                           size="xs"
                           color="error"
                           icon="i-heroicons-trash"
-                          @click="removeOption(Number(idx), Number(oidx))"
+                          @click="removeOption(idx, oidx)"
                         />
                       </div>
                       <UButton
                         color="primary"
                         size="sm"
                         icon="i-heroicons-plus-small"
-                        @click="addOption(Number(idx))"
+                        @click="addOption(idx)"
                       >
                         Tambah Opsi
                       </UButton>
@@ -383,10 +383,35 @@
 
 <script setup lang="ts">
 import * as v from "valibot";
+import { useLessonStore } from "~/stores/lesson";
+import { useLmsClassStore } from "~/stores/lmsclass";
+import { useAuthStore } from "~/stores/auth";
+import { useSubscriptionStore } from "~/stores/subscription";
 
-import { useAuthStore } from '~/stores/auth'
-import { useLessonStore } from '~/stores/lesson'
-import { useLmsClassStore } from '~/stores/lmsclass'
+interface ContentBlock {
+  type: string;
+  title: string;
+  content?: string;
+  url?: string;
+  alt?: string;
+  options?: any[];
+  explanation?: string;
+  placeholder?: string;
+  max_length?: number;
+  __isNew?: boolean;
+  __id?: string;
+  [key: string]: any;
+}
+
+interface LessonState {
+  class_id: number;
+  title: string;
+  summary: string;
+  content: string;
+  content_json: ContentBlock[];
+  author_id: number;
+  is_published: boolean;
+}
 
 const aiLoading = reactive({ summary: false, block: false });
 const props = defineProps<{ classId: number }>();
@@ -400,7 +425,7 @@ const step = ref<number>(1);
 const aiPrompt = ref("");
 
 // lesson full state
-const state = reactive({
+const state = reactive<LessonState>({
   class_id: 0,
   title: "",
   summary: "",
@@ -408,7 +433,7 @@ const state = reactive({
   content_json: [],
   author_id: 0,
   is_published: true,
-} as any);
+});
 
 // small form state for step1
 const formState = reactive({
@@ -451,7 +476,7 @@ const goToPrevious = (): void => {
 
 const newBlockCounter = ref(0);
 
-function makeEmptyBlock() {
+function makeEmptyBlock(): ContentBlock {
   const id = ++newBlockCounter.value;
   return {
     type: "text",
@@ -459,15 +484,15 @@ function makeEmptyBlock() {
     content: "",
     __isNew: true,
     __id: "new_" + id,
-  } as any;
+  };
 }
 
 const addEmptyBlock = () => {
-  (state.content_json as any).push(makeEmptyBlock());
+  state.content_json.push(makeEmptyBlock());
 };
 
 const setBlockType = (index: number, type: string) => {
-  const block = (state.content_json as any)[index];
+  const block = state.content_json[index];
   if (!block) return;
 
   let newBlock: any;
@@ -510,7 +535,7 @@ const setBlockType = (index: number, type: string) => {
   }
 
   newBlock.__id = block.__id;
-  (state.content_json as any)[index] = newBlock;
+  state.content_json[index] = newBlock;
 };
 
 const handleFileUpload = (event: Event, index: number, type: string) => {
@@ -521,7 +546,9 @@ const handleFileUpload = (event: Event, index: number, type: string) => {
   const reader = new FileReader();
   reader.onload = () => {
     const base64String = reader.result as string;
-    (state.content_json as any)[index].url = base64String;
+    if (state.content_json[index]) {
+      state.content_json[index].url = base64String;
+    }
   };
   reader.readAsDataURL(file);
 };
@@ -579,10 +606,13 @@ const submitFinal = async () => {
   state.class_id = props.classId;
   state.author_id = authStore.user.id;
 
-  await lessonStore.createLesson({ ...state });
+  await lessonStore.createLesson({ ...state } as any);
   await lmsClassStore.getDetailsClass(props.classId);
   closeLessonModal();
 };
+
+const toast = useToast();
+const subscriptionStore = useSubscriptionStore();
 
 const callAi = async (
   type: string,
@@ -591,24 +621,57 @@ const callAi = async (
     messages?: Array<{ type: string; content: string }>;
   }
 ) => {
-  const res: any = await $fetch(`/api/ai?type=${encodeURIComponent(type)}`, {
-    method: "POST",
-    body: payload,
-  });
-  if (!res || !res.success) {
-    console.error("AI error", res);
+  try {
+    const res: any = await $fetch(`/api/ai?type=${encodeURIComponent(type)}`, {
+      method: "POST",
+      body: payload,
+    });
+    
+    if (!res || !res.success) {
+      if (res?.limitReached) {
+        toast.add({
+          title: 'Limit Reached',
+          description: res.error || 'You have reached your AI generation limit.',
+          color: 'error',
+          actions: [
+            { label: 'Upgrade Plan', onClick: () => { navigateTo('/subscriptions') } }
+          ]
+
+        });
+      } else {
+        toast.add({
+          title: 'AI Error',
+          description: res?.error || 'Failed to generate content.',
+          color: 'error'
+        });
+      }
+      console.error("AI error", res);
+      return "";
+    }
+
+    // Refresh subscription data to show updated usage
+    subscriptionStore.fetchCurrentSubscription();
+
+    let out = (res as any).output ?? "";
+    if (out && typeof out === "object") {
+      try {
+        out = JSON.stringify(out);
+      } catch (e) {
+        out = String(out);
+      }
+    }
+    return out;
+  } catch (err: any) {
+    console.error("Fetch AI error", err);
+    toast.add({
+      title: 'Request Failed',
+      description: 'Could not connect to AI service.',
+      color: 'error'
+    });
     return "";
   }
-  let out = (res as any).output ?? "";
-  if (out && typeof out === "object") {
-    try {
-      out = JSON.stringify(out);
-    } catch (e) {
-      out = String(out);
-    }
-  }
-  return out;
 };
+
 
 const aiGenerateBlock = async () => {
   if (!aiPrompt.value.trim()) {

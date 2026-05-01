@@ -36,14 +36,7 @@
 
     <!-- Main Content -->
     <div v-else>
-      <!-- Teacher Tabs -->
-      <div v-if="isTeacherOrAdmin" class="flex gap-4 border-b border-slate-200 mb-6">
-        <button @click="teacherTab = 'content'" :class="['pb-3 px-2 border-b-2 font-medium text-sm transition-colors cursor-pointer', teacherTab === 'content' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700']">Content</button>
-        <button @click="teacherTab = 'grades'" :class="['pb-3 px-2 border-b-2 font-medium text-sm transition-colors cursor-pointer', teacherTab === 'grades' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700']">Grades</button>
-      </div>
-
-      <div v-if="!isTeacherOrAdmin || teacherTab === 'content'">
-        <div v-if="!isSubmitted">
+      <div v-if="!isSubmitted">
         <!-- Progress Bar -->
         <div class="mb-8">
           <div class="flex items-center justify-between text-sm text-slate-500 mb-3">
@@ -61,14 +54,14 @@
           <!-- Step indicators -->
           <div class="flex justify-between mt-2 px-0.5">
             <button
-              v-for="(_, idx) in lessonStore.lesson.content_json"
+              v-for="(_, idx) in lessonStore.lesson?.content_json"
               :key="idx"
-              @click="goToPage(Number(idx))"
+              @click="goToPage(+idx)"
               :class="[
                 'w-2 h-2 rounded-full transition-all duration-200 cursor-pointer',
-                Number(idx) === currentIndex
+                (+idx) === currentIndex
                   ? 'bg-emerald-500 scale-125'
-                  : Number(idx) < currentIndex
+                  : (+idx) < currentIndex
                     ? 'bg-emerald-300'
                     : 'bg-slate-200'
               ]"
@@ -149,7 +142,7 @@
                         ? 'bg-emerald-500 text-white' 
                         : 'bg-slate-100 text-slate-600'
                   ]">
-                    {{ String.fromCharCode(65 + Number(optIdx)) }}
+                    {{ String.fromCharCode(65 + (+optIdx)) }}
                   </div>
                   <span class="text-sm font-medium text-slate-700 flex-1">{{ option.value ?? option.label }}</span>
                   <UIcon
@@ -232,13 +225,13 @@
 
         <!-- Pagination Controls -->
         <div class="flex items-center justify-between mt-8">
-          <UButton v-if="!isReviewMode && !isStudent" variant="ghost" color="neutral" @click="resetAll" class="text-slate-500 cursor-pointer">
+          <UButton v-if="!isReviewMode" variant="ghost" color="neutral" @click="resetAll" class="text-slate-500 cursor-pointer">
             <UIcon name="heroicons-arrow-path" class="h-4 w-4 mr-1.5" />
             Reset
           </UButton>
-          <UButton v-else-if="!isTeacherOrAdmin" variant="ghost" color="primary" @click="isSubmitted = true" class="cursor-pointer">
-            <UIcon name="heroicons-trophy" class="h-4 w-4 mr-1.5" />
-            View Score
+          <UButton v-else variant="ghost" color="primary" @click="handleViewSubmissions" class="cursor-pointer">
+            <UIcon name="heroicons-users" class="h-4 w-4 mr-1.5" />
+            {{ isTeacher ? 'View Student Submissions' : 'View Score' }}
           </UButton>
 
           <div class="flex items-center gap-2">
@@ -278,7 +271,7 @@
 
       <!-- Results -->
       <div v-else class="space-y-6">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
+        <div v-if="!isTeacher" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
           <div class="flex justify-center mb-4">
             <div class="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center">
               <UIcon name="heroicons-trophy" class="h-8 w-8 text-emerald-600" />
@@ -311,45 +304,79 @@
           </div>
 
           <div class="flex justify-center gap-3">
-            <UButton v-if="!isStudent" variant="outline" color="neutral" @click="resetAll" class="cursor-pointer">
-              <UIcon name="heroicons-arrow-path" class="h-4 w-4 mr-1.5" />
-              Try Again
-            </UButton>
             <UButton color="primary" @click="goToFirstPage" class="cursor-pointer">
               <UIcon name="heroicons-eye" class="h-4 w-4 mr-1.5" />
-              Review Answers
+              {{ isTeacher ? 'View Content' : 'Review Answers' }}
             </UButton>
           </div>
         </div>
-      </div>
-      </div>
 
-      <!-- Grades Tab -->
-      <div v-if="isTeacherOrAdmin && teacherTab === 'grades'" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-          <h3 class="font-bold text-lg text-slate-900">Student Grades</h3>
-        </div>
-        <div class="divide-y divide-slate-100">
-          <div v-for="grade in studentGrades" :key="grade.user.id" class="px-8 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-semibold shrink-0">
-                {{ grade.user.profile?.display_name?.[0]?.toUpperCase() || 'U' }}
-              </div>
-              <div class="min-w-0">
-                <p class="font-medium text-slate-900 truncate">{{ grade.user.profile?.display_name }}</p>
-                <p class="text-xs text-slate-500 truncate">{{ grade.user.email }}</p>
-              </div>
-            </div>
-            <div v-if="grade.submitted" class="text-right shrink-0">
-              <p class="font-semibold text-emerald-600">{{ grade.score.correct }} / {{ grade.score.correct + grade.score.wrong }}</p>
-              <p class="text-xs text-slate-500">Correct</p>
-            </div>
-            <div v-else class="text-right shrink-0">
-              <span class="inline-block px-2.5 py-1 bg-slate-100 text-slate-500 text-xs font-medium rounded-full">Not submitted</span>
-            </div>
+        <div v-else class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Content Overview</h2>
+            <p class="text-sm text-slate-500 mt-1">You are viewing this lesson as a teacher.</p>
           </div>
-          <div v-if="studentGrades.length === 0" class="px-8 py-12 text-center text-slate-500">
-            No students found in this class.
+          <UButton color="primary" @click="goToFirstPage" class="cursor-pointer">
+            <UIcon name="heroicons-eye" class="h-4 w-4 mr-1.5" />
+            Back to Content
+          </UButton>
+        </div>
+
+        <!-- Teacher: Student Submissions -->
+        <div v-if="isTeacher" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-lg text-slate-900">Student Submissions</h3>
+              <p class="text-sm text-slate-500">List of grades from students who completed this lesson</p>
+            </div>
+            <UButton variant="ghost" color="neutral" icon="heroicons-arrow-path" @click="loadTeacherSubmissions" :loading="lessonStore.loading" />
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                  <th class="px-8 py-4 font-semibold">Student</th>
+                  <th class="px-8 py-4 font-semibold text-center">Status</th>
+                  <th class="px-8 py-4 font-semibold text-center">Correct</th>
+                  <th class="px-8 py-4 font-semibold text-center">Wrong</th>
+                  <th class="px-8 py-4 font-semibold text-center">Accuracy</th>
+                  <th class="px-8 py-4 font-semibold">Submitted At</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr v-for="sub in allMembersSubmissions" :key="sub.user_id" class="hover:bg-slate-50/50 transition-colors">
+                  <td class="px-8 py-4">
+                    <div class="flex flex-col">
+                      <span class="font-medium text-slate-700">{{ sub.user_name }}</span>
+                      <span class="text-[10px] uppercase text-slate-400 font-bold tracking-tight">{{ sub.role }}</span>
+                    </div>
+                  </td>
+                  <td class="px-8 py-4 text-center">
+                    <span v-if="sub.has_submitted" class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase">
+                      Submitted
+                    </span>
+                    <span v-else class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase">
+                      Pending
+                    </span>
+                  </td>
+                  <td class="px-8 py-4 text-center text-emerald-600 font-semibold">{{ sub.has_submitted ? sub.score_correct : '-' }}</td>
+                  <td class="px-8 py-4 text-center text-red-600 font-semibold">{{ sub.has_submitted ? sub.score_wrong : '-' }}</td>
+                  <td class="px-8 py-4 text-center">
+                    <span v-if="sub.has_submitted && (sub.score_correct + sub.score_wrong > 0)" class="inline-flex items-center px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-bold">
+                      {{ Math.round((sub.score_correct / (sub.score_correct + sub.score_wrong)) * 100) }}%
+                    </span>
+                    <span v-else class="text-slate-400">-</span>
+                  </td>
+                  <td class="px-8 py-4 text-sm text-slate-500">
+                    {{ sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString() : '-' }}
+                  </td>
+                </tr>
+                <tr v-if="!allMembersSubmissions.length">
+                  <td colspan="6" class="px-8 py-12 text-center text-slate-400 italic">No students joined yet</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -360,34 +387,37 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import { useLessonStore } from '~/stores/lesson'
+import { useLmsClassStore } from '~/stores/lmsclass'
 
 const route = useRoute()
 const classId = computed(() => Number(route.params.id))
 const lessonId = computed(() => Number(route.params.lessonid))
 const lessonStore = useLessonStore()
-const lmsClassStore = useLmsClassStore()
 const authStore = useAuthStore()
+const lmsClassStore = useLmsClassStore()
 const userId = computed(() => authStore.user?.id || 'guest')
+const isTeacher = computed(() => {
+  const roles = authStore.user?.roles?.map(r => r.toLowerCase()) || []
+  return roles.includes('teacher') || roles.includes('admin')
+})
 
-const isTeacherOrAdmin = computed(() => authStore.user?.roles?.includes('admin') || authStore.user?.roles?.includes('teacher'))
-const isStudent = computed(() => authStore.user?.roles?.includes('student'))
-const teacherTab = ref('content')
-
-const studentGrades = computed(() => {
+const allMembersSubmissions = computed(() => {
   const members = lmsClassStore.classDetail?.memberships || []
-  return members.map((m: any) => {
-    const saved = lessonStore.getSubmission(m.user.id, lessonId.value)
+  return members.map((member: any) => {
+    const submission = lessonStore.allSubmissions.find((s: any) => s.user_id === member.user.id)
     return {
-      user: m.user,
-      score: saved?.score || { correct: 0, wrong: 0 },
-      submitted: !!saved
+      user_id: member.user.id,
+      user_name: member.user.profile?.display_name || member.user.email,
+      role: member.role,
+      ...submission,
+      has_submitted: !!submission
     }
   })
 })
 
 const currentIndex = ref(0)
 const isSubmitted = ref(false)
-const isReviewMode = ref(false)
+const isReviewMode = ref(isTeacher.value)
 const score = ref({ correct: 0, wrong: 0 })
 const results = ref<Record<number, any>>({})
 const localEssay = reactive<Record<number, string>>({})
@@ -551,16 +581,39 @@ function submitEssayDebounced(idx: number, forceNow = false) {
 async function saveResults() {
   const payload = {
     results: results.value,
-    score: score.value,
+    score_correct: score.value.correct,
+    score_wrong: score.value.wrong,
     answers: answers,
     localEssay: localEssay,
     savedAt: new Date().toISOString(),
   }
+  
+  // Local backup
   lessonStore.saveSubmission(userId.value, lessonId.value, payload)
+  
+  // Backend sync
+  try {
+    await lessonStore.submitLesson(lessonId.value, payload)
+  } catch (err: any) {
+    console.error("Failed to sync with backend", err)
+  }
+  
   isReviewMode.value = true
 }
 
-function goToPage(idx: number) {
+async function loadTeacherSubmissions() {
+  if (!isTeacher.value) return
+  await lessonStore.fetchAllSubmissions(lessonId.value)
+}
+
+async function handleViewSubmissions() {
+  isSubmitted.value = true
+  if (isTeacher.value) {
+    await loadTeacherSubmissions()
+  }
+}
+
+async function goToPage(idx: number) {
   if (isType(currentBlock.value, 'essay')) submitEssay(currentIndex.value)
   currentIndex.value = idx
 }
@@ -616,27 +669,39 @@ function resetAll() {
 
 onMounted(async () => {
   await lessonStore.getDetailLesson(lessonId.value)
-  if (isTeacherOrAdmin.value && !lmsClassStore.classDetail) {
+  
+  if (!lmsClassStore.classDetail || lmsClassStore.classDetail.id !== classId.value) {
     await lmsClassStore.getDetailsClass(classId.value)
   }
   
-  if (isTeacherOrAdmin.value) {
+  if (isTeacher.value) {
     isReviewMode.value = true
-    isSubmitted.value = false
-    lessonStore.lesson?.content_json?.forEach((b: any, i: number) => {
-      if (b.type === 'essay') localEssay[i] = localEssay[i] ?? ''
-    })
+    isSubmitted.value = false // Start with content view for teachers
+    await loadTeacherSubmissions()
     return
   }
+
+  // Check backend first
+  const backendSaved = await lessonStore.fetchSubmission(lessonId.value)
+  const saved = backendSaved || lessonStore.getSubmission(userId.value, lessonId.value)
   
-  const saved = lessonStore.getSubmission(userId.value, lessonId.value)
   if (saved) {
     isSubmitted.value = true
     isReviewMode.value = true
     
+    // Auto-sync if it was only local
+    if (!backendSaved && saved.results) {
+      try {
+        await lessonStore.submitLesson(lessonId.value, saved)
+        console.log("Auto-synced local submission to backend")
+      } catch (err) {
+        console.warn("Auto-sync failed", err)
+      }
+    }
+    
     Object.assign(results.value, saved.results || {})
-    score.value.correct = saved.score?.correct || 0
-    score.value.wrong = saved.score?.wrong || 0
+    score.value.correct = saved.score_correct || saved.score?.correct || 0
+    score.value.wrong = saved.score_wrong || saved.score?.wrong || 0
     
     Object.assign(answers, saved.answers || {})
     Object.assign(localEssay, saved.localEssay || {})

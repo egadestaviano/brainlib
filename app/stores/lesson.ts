@@ -5,6 +5,7 @@ interface State {
   loading: boolean
   error: string | null
   submissions: Record<string, any>
+  allSubmissions: any[]
 }
 
 export const useLessonStore = defineStore('lesson', {
@@ -13,6 +14,7 @@ export const useLessonStore = defineStore('lesson', {
     loading: false,
     error: null,
     submissions: {},
+    allSubmissions: [] as any[],
   }),
 
   actions: {
@@ -74,6 +76,40 @@ export const useLessonStore = defineStore('lesson', {
     getSubmission(userId: number | string, lessonId: number) {
       const key = `${userId}_${lessonId}`
       return this.submissions[key] || null
+    },
+
+    async submitLesson(id: number, payload: any) {
+      try {
+        const res = await LessonService.submitLesson(id, payload)
+        return res
+      } catch (err: any) {
+        console.error("Failed to submit lesson:", err)
+        throw err
+      }
+    },
+
+    async fetchSubmission(id: number) {
+      try {
+        const res = await LessonService.getLessonSubmission(id)
+        return res.data
+      } catch (err: any) {
+        console.error("Failed to fetch submission:", err)
+        return null
+      }
+    },
+
+    async fetchAllSubmissions(id: number): Promise<any[]> {
+      this.loading = true
+      try {
+        const res = await LessonService.listLessonSubmissions(id)
+        this.allSubmissions = res.data || []
+        return this.allSubmissions
+      } catch (err: any) {
+        console.error("Failed to fetch all submissions:", err)
+        throw err
+      } finally {
+        this.loading = false
+      }
     },
   },
 

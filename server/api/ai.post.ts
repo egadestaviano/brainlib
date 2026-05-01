@@ -1,4 +1,5 @@
-import { readBody, defineEventHandler, getQuery } from "h3";
+import { readBody, defineEventHandler, getQuery, getCookie } from "h3";
+
 import { GoogleGenAI } from "@google/genai";
 
 type PromptMessage = {
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const GEMINI_KEY = config.geminiApiKey;
   const MODEL = config.geminiModel;
+  const API_BASE_URL = config.public.apiBaseUrl;
 
   if (!GEMINI_KEY) {
     return {
@@ -31,8 +33,36 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  // ! Define prompt systems depending on type
+  const token = getCookie(event, 'token');
+  if (token) {
+    try {
+      const checkRes: any = await $fetch(`${API_BASE_URL}/subscriptions/record-ai-usage`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!checkRes.success) {
+         throw createError({
+           statusCode: 403,
+           statusMessage: checkRes.error || "AI limit reached"
+         });
+      }
+    } catch (err: any) {
+      if (err.statusCode === 403) {
+        return {
+          success: false,
+          error: err.statusMessage || "AI generation limit reached. Please upgrade your plan.",
+          limitReached: true
+        };
+      }
+      // If it's another error (like 401), we might want to ignore it or handle it
+      console.error("Error checking AI limit:", err);
+    }
+  }
+
   const templates: Record<string, string> = {
+
     summary: `You are an expert educational copywriter. Create a short summary (2–3 sentences).`,
     block: `You are an expert educational content generator. Return ONLY a VALID JSON ARRAY (no markdown, no backticks, no explanation) containing ONE or MORE lesson content block objects. The assistant must output a single JSON array as the entire response.
 

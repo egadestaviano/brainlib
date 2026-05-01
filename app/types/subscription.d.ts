@@ -7,7 +7,10 @@ declare global {
     status: string;
     started_at: string;
     expires_at: string;
+    ai_usage: number;
+    ai_limit: number;
   }
+
 
   interface PlanResponse {
     id: number;

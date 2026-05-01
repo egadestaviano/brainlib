@@ -3,5 +3,7 @@ import { api } from '~/utils/api'
 export const subscriptionService = {
   getCurrent: () => api.get<SubscriptionCurrentResponse>('/subscriptions/current'),
   listPlans: () => api.get<PlanResponse[]>('/subscriptions/plans'),
-  subscribeToPlan: (planId: number) => api.post<any>('/subscriptions', { plan_id: planId })
+  subscribeToPlan: (planId: number) => api.post<any>('/subscriptions', { plan_id: planId }),
+  recordAiUsage: () => api.post<any>('/subscriptions/record-ai-usage', {})
 }
+
