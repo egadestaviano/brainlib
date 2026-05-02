@@ -149,7 +149,7 @@
             </li>
           </ul>
 
-          <!-- PayPal Button -->
+          <!-- Action -->
           <div class="plan-action">
             <div v-if="isActive('medium')" class="plan-action__active">
               <button disabled class="btn btn--disabled">Current Plan Active</button>
@@ -157,11 +157,8 @@
             <div v-else-if="isHigherThan('medium')" class="plan-action__disabled">
               <button disabled class="btn btn--disabled">Lower Plan Locked</button>
             </div>
-            <div v-else id="paypal-button-medium" class="paypal-container">
-              <button v-if="!paypalLoaded" class="btn btn--loading" disabled>
-                <span class="btn-spinner"></span>
-                Loading PayPal...
-              </button>
+            <div v-else>
+              <button class="btn btn--medium" @click="openPaymentModal('medium')">Subscribe</button>
             </div>
           </div>
         </div>
@@ -210,21 +207,47 @@
             </li>
           </ul>
 
-          <!-- PayPal Button -->
+          <!-- Action -->
           <div class="plan-action">
             <div v-if="isActive('enterprise')" class="plan-action__active">
               <button disabled class="btn btn--disabled">Current Plan Active</button>
             </div>
-            <div v-else id="paypal-button-enterprise" class="paypal-container">
-              <button v-if="!paypalLoaded" class="btn btn--loading" disabled>
-                <span class="btn-spinner"></span>
-                Loading PayPal...
-              </button>
+            <div v-else>
+              <button class="btn btn--enterprise" @click="openPaymentModal('enterprise')">Subscribe</button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Payment Modal -->
+    <Teleport to="body">
+      <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+        <div class="modal-content">
+          <button class="modal-close" @click="closeModal" aria-label="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <div class="modal-header">
+            <h3 class="modal-title">Subscribe to {{ selectedPlanName }}</h3>
+            <p class="modal-subtitle">Complete your payment to activate the plan</p>
+          </div>
+          <div class="modal-summary">
+            <span class="modal-summary__label">Total</span>
+            <span class="modal-summary__price">
+              ${{ selectedPlanSlug ? getPlanPrice(selectedPlanSlug) : '0' }}
+              <small>/{{ billingCycle === 'monthly' ? 'month' : 'year' }}</small>
+            </span>
+          </div>
+          <p class="modal-hint">Choose a payment method:</p>
+          <div id="modal-paypal-container" class="paypal-container modal-paypal-container">
+            <button v-if="!paypalLoaded" class="btn btn--loading" disabled>
+              <span class="btn-spinner"></span>
+              Loading PayPal...
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -241,6 +264,34 @@ const toast = useToast()
 
 const billingCycle = ref<'monthly' | 'yearly'>('monthly')
 const pendingSubIds = ref<Record<string, number>>({})
+
+const showModal = ref(false)
+const selectedPlanSlug = ref<string | null>(null)
+
+const selectedPlanName = computed(() => {
+  if (!selectedPlanSlug.value) return ''
+  return selectedPlanSlug.value.charAt(0).toUpperCase() + selectedPlanSlug.value.slice(1)
+})
+
+const openPaymentModal = async (planSlug: string) => {
+  selectedPlanSlug.value = planSlug
+  showModal.value = true
+  await nextTick()
+  setTimeout(() => {
+    const paypal = (window as any).paypal
+    if (!paypal) return
+    const container = document.getElementById('modal-paypal-container')
+    if (container) container.innerHTML = ''
+    renderPayPalButton('modal-paypal-container', planSlug)
+  }, 200)
+}
+
+const closeModal = () => {
+  showModal.value = false
+  selectedPlanSlug.value = null
+  const container = document.getElementById('modal-paypal-container')
+  if (container) container.innerHTML = ''
+}
 
 // Map plan slug to plan_id from backend
 const planIdMap = computed(() => {
@@ -302,7 +353,7 @@ const loadPayPalScript = () => {
 
     const script = document.createElement('script')
     const clientId = config.public.paypalClientId || 'test'
-    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture`
+    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture&enable-funding=paypal,card&disable-funding=credit,paylater`
     script.onload = () => {
       paypalLoaded.value = true
       resolve((window as any).paypal)
@@ -326,7 +377,8 @@ const renderPayPalButton = (containerId: string, planSlug: string) => {
   const planId = (planIdMap.value as any)[planSlug]
   if (!planId) return
 
-  ;(window as any).paypal.Buttons({
+  const paypal = (window as any).paypal
+  const buttonOptions: any = {
     style: {
       layout: 'vertical',
       color: 'gold',
@@ -381,6 +433,7 @@ const renderPayPalButton = (containerId: string, planSlug: string) => {
         })
 
         await subscriptionStore.fetchCurrentSubscription()
+        closeModal()
       } catch (e) {
         console.error('Capture Error:', e)
         toast.add({
@@ -405,7 +458,15 @@ const renderPayPalButton = (containerId: string, planSlug: string) => {
         color: 'error',
       })
     },
-  }).render(`#${containerId}`)
+  }
+  try {
+    const buttons = paypal.Buttons(buttonOptions)
+    buttons.render(`#${containerId}`).catch((err: any) => {
+      console.error('PayPal render error:', err)
+    })
+  } catch (e) {
+    console.error('PayPal Buttons init error:', e)
+  }
 }
 
 const isHigherThan = (planSlug: string) => {
@@ -421,21 +482,6 @@ const isHigherThan = (planSlug: string) => {
   return currentId > (targetId || 0)
 }
 
-const initPayPalButtons = () => {
-  if (!(window as any).paypal) {
-    console.warn('PayPal SDK not loaded yet')
-    return
-  }
-
-  console.log('Initializing PayPal buttons...')
-  if (!isActive('medium') && !isHigherThan('medium')) {
-    renderPayPalButton('paypal-button-medium', 'medium')
-  }
-  if (!isActive('enterprise') && !isHigherThan('enterprise')) {
-    renderPayPalButton('paypal-button-enterprise', 'enterprise')
-  }
-}
-
 onMounted(async () => {
   try {
     await subscriptionStore.fetchPlans()
@@ -448,24 +494,10 @@ onMounted(async () => {
 
   try {
     await loadPayPalScript()
-    // Give time for DOM elements to be fully ready
-    setTimeout(() => {
-      initPayPalButtons()
-    }, 1000)
   } catch (e) {
     console.error('PayPal script load error:', e)
   }
 })
-
-watch(
-  () => [subscriptionStore.getSubscription?.id, subscriptionStore.getSubscription?.plan_id],
-  async () => {
-    if (paypalLoaded.value) {
-      await nextTick()
-      setTimeout(initPayPalButtons, 100)
-    }
-  }
-)
 </script>
 
 <style scoped>
@@ -787,6 +819,28 @@ watch(
   border-color: #cbd5e1;
 }
 
+.btn--medium {
+  background: #3b82f6;
+  color: #ffffff;
+  border: 1px solid #3b82f6;
+}
+
+.btn--medium:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.btn--enterprise {
+  background: #1a1a2e;
+  color: #ffffff;
+  border: 1px solid #1a1a2e;
+}
+
+.btn--enterprise:hover {
+  background: #0f0f1c;
+  border-color: #0f0f1c;
+}
+
 .btn--disabled {
   background: #f8fafc;
   color: #94a3b8;
@@ -857,6 +911,124 @@ watch(
 
 .font-bold {
   font-weight: 700;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  position: relative;
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.25s ease;
+}
+
+.modal-hint {
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0 0 0.75rem;
+  font-weight: 500;
+}
+
+.modal-paypal-container {
+  min-height: 50px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  border-radius: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.modal-close:hover {
+  background: #f1f5f9;
+  color: #1a1a2e;
+}
+
+.modal-header {
+  margin-bottom: 1.25rem;
+  padding-right: 2rem;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 0.25rem;
+}
+
+.modal-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.modal-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+}
+
+.modal-summary__label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.modal-summary__price {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.modal-summary__price small {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-left: 2px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
 
