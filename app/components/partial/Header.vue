@@ -41,6 +41,15 @@
                           class="w-full" />
                       </UFormField>
 
+                      <UAlert
+                        v-if="LmsClassStore.error"
+                        color="error"
+                        variant="soft"
+                        :title="LmsClassStore.error"
+                        :close="{ color: 'error', variant: 'link', padded: false }"
+                        @close="LmsClassStore.error = null"
+                      />
+
                       <div class="flex justify-end gap-2">
                         <UButton @click.prevent="handleCancel" type="button" color="secondary" variant="soft" class="cursor-pointer">
                           Cancel
@@ -67,9 +76,14 @@
                         <UInput v-model="joinClassState.code" placeholder="Enter class code" class="w-full" />
                       </UFormField>
 
-                      <div v-if="LmsClassStore.error">
-                        {{ LmsClassStore.error }}
-                      </div>
+                      <UAlert
+                        v-if="LmsClassStore.error"
+                        color="error"
+                        variant="soft"
+                        :title="LmsClassStore.error"
+                        :close="{ color: 'error', variant: 'link', padded: false }"
+                        @close="LmsClassStore.error = null"
+                      />
 
                       <div class="flex justify-end gap-2">
                         <UButton @click.prevent="handleCancelJoin" type="button" color="secondary" variant="soft" class="cursor-pointer">
@@ -165,11 +179,13 @@ const joinClassState = reactive({
 const handleCancel = () => {
   state.title = ''
   state.description = ''
+  LmsClassStore.error = null
   modalCreate.value = false
 }
 
 const handleCancelJoin = () => {
   joinClassState.code = ''
+  LmsClassStore.error = null
   modalJoin.value = false
 }
 
@@ -182,20 +198,23 @@ const canCreateClass = computed(() => {
 const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
   try {
     await LmsClassStore.createClass(event.data)
+    state.title = ''
+    state.description = ''
     modalCreate.value = false
     toast.add({ title: 'Class created successfully', color: 'success' })
-  } catch (error: any) {
-    toast.add({ title: LmsClassStore.error || 'Failed to create class', color: 'error' })
+  } catch {
+    // error is shown inside the modal via LmsClassStore.error
   }
 }
 
 const handleJoinClass = async (event: FormSubmitEvent<JoinClassSchema>) => {
   try {
     await LmsClassStore.joinClassByCode(event.data.code)
+    joinClassState.code = ''
     modalJoin.value = false
     toast.add({ title: 'Joined class successfully', color: 'success' })
-  } catch (error: any) {
-    toast.add({ title: LmsClassStore.error || 'Failed to join class', color: 'error' })
+  } catch {
+    // error is shown inside the modal via LmsClassStore.error
   }
 }
 
