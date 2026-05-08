@@ -25,7 +25,7 @@ export const useLmsClassStore = defineStore('lmsclass', {
         this.clases = res.data
         return res
       } catch (err: any) {
-        this.error = err?.data?.message || err?.data?.error || "Failed to fetch classes"
+        this.error = err?.response?.data?.message || err.message || "Failed to fetch classes"
         throw err
       } finally {
         this.loading = false
@@ -45,7 +45,7 @@ export const useLmsClassStore = defineStore('lmsclass', {
         return res
       } catch (err: any) {
         if (err?.status === 403) {
-          this.error = err?.data?.message || "You don't have permission to create a class. Please upgrade your plan."
+          this.error = err?.data?.message || err?.data?.error || "You've reached your subscription's class limit. Upgrade your plan to create more classes."
         } else {
           this.error = err?.data?.message || err?.data?.error || "Failed to create class"
         }
@@ -64,7 +64,7 @@ export const useLmsClassStore = defineStore('lmsclass', {
         this.classDetail = res
         return res
       } catch (err: any) {
-        this.error = err?.data?.message || err?.data?.error || "Failed to get class"
+        this.error = err?.response?.data?.message || err.message || "Failed to Get class"
         throw err
       } finally {
         this.detailLoading = false
@@ -79,7 +79,7 @@ export const useLmsClassStore = defineStore('lmsclass', {
         this.getMyClass()
         return res
       } catch (err: any) {
-        this.error = err?.data?.message || err?.data?.error || "Failed to join class"
+        this.error = err?.response?.data?.error || "Failed to join class"
         throw err
       } finally {
         this.loading = false

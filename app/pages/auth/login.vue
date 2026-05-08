@@ -1,31 +1,19 @@
 <template>
   <div class="space-y-8">
     <div class="space-y-2">
-      <h1 class="text-2xl font-bold text-slate-900">Sign in to BrainLib</h1>
+      <h1 class="text-2xl font-bold text-slate-900">Sign in to Mentora</h1>
       <p class="text-sm text-slate-500">Enter your credentials to access your account</p>
     </div>
 
     <UForm :state="form" @submit="handleLogin" class="space-y-5">
       <UFormField label="Email" name="email" required>
-        <UInput
-          class="w-full"
-          v-model="form.email"
-          type="email"
-          size="lg"
-          placeholder="you@example.com"
-          autocomplete="email"
-        />
+        <UInput class="w-full" v-model="form.email" type="email" size="lg" placeholder="you@example.com"
+          autocomplete="email" />
       </UFormField>
 
       <UFormField label="Password" name="password" required>
-        <UInput
-          class="w-full"
-          v-model="form.password"
-          type="password"
-          size="lg"
-          placeholder="Enter your password"
-          autocomplete="current-password"
-        />
+        <UInput class="w-full" v-model="form.password" type="password" size="lg" placeholder="Enter your password"
+          autocomplete="current-password" />
       </UFormField>
 
       <div class="flex items-center justify-between">
@@ -35,14 +23,8 @@
         </UButton>
       </div>
 
-      <UButton
-        type="submit"
-        block
-        :loading="loading"
-        :disabled="loading"
-        color="neutral"
-        class="h-11 text-base font-medium"
-      >
+      <UButton type="submit" block :loading="loading" :disabled="loading" color="neutral"
+        class="h-11 text-base font-medium">
         {{ loading ? 'Signing in...' : 'Sign In' }}
       </UButton>
 
@@ -56,22 +38,12 @@
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <UButton
-          variant="outline"
-          color="neutral"
-          @click="loginAsDemo('teacher@example.com')"
-          :disabled="loading"
-          class="justify-center"
-        >
+        <UButton variant="outline" color="neutral" @click="loginAsDemo('teacher@example.com')" :disabled="loading"
+          class="justify-center">
           Demo Teacher
         </UButton>
-        <UButton
-          variant="outline"
-          color="neutral"
-          @click="loginAsDemo('student@example.com')"
-          :disabled="loading"
-          class="justify-center"
-        >
+        <UButton variant="outline" color="neutral" @click="loginAsDemo('student@example.com')" :disabled="loading"
+          class="justify-center">
           Demo Student
         </UButton>
       </div>
@@ -111,7 +83,7 @@ const handleLogin = async () => {
     loading.value = true
     await authStore.login(form.value)
     await lmsClassStore.getMyClass()
-    await router.push('/home')
+    await router.push('/classes')
   } catch (error: any) {
     useToast().add({
       title: 'Error',

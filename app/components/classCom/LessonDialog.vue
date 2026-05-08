@@ -1,373 +1,187 @@
 <template>
-  <div class="w-full max-w-5xl">
-    <div class="mb-3">
-      <UButton
-        color="primary"
-        size="md"
-        class="mr-auto py-2 cursor-pointer"
-        @click="openLessonModal"
-      >
-        <UIcon name="heroicons-plus" class="h-4 w-4" />
-        Add Lesson
-      </UButton>
-    </div>
+  <div class="w-full">
+    <UButton
+      color="primary"
+      size="md"
+      icon="heroicons-plus"
+      class="cursor-pointer"
+      @click="openLessonModal"
+    >
+      Add Lesson
+    </UButton>
 
-    <!-- Modal -->
-    <UModal v-model:open="modalOpen" class="w-full max-w-5xl">
-      <template #header>
-        <h2 class="text-lg font-bold">Add New Lesson</h2>
-      </template>
-
-      <template #body>
-        <!-- STEP 1 -->
-        <div v-if="step === 1">
-          <UForm
-            :schema="schema"
-            :state="formState"
-            class="space-y-4"
-            @submit.prevent="gotoStep2"
-          >
-            <UFormField label="Lesson Title" name="title" class="w-full">
-              <UInput
-                v-model="formState.title"
-                placeholder="Enter lesson title"
-                class="w-full"
-              />
-            </UFormField>
-
-            <UFormField label="Description" name="summary" class="w-full">
-              <div class="flex gap-2">
-                <UTextarea
-                  v-model="formState.summary"
-                  placeholder="Enter lesson description"
-                  class="w-full"
-                />
+    <!-- Main Modal: Lesson Editor -->
+    <UModal v-model:open="modalOpen" :ui="{ content: 'sm:max-w-3xl' }">
+      <template #content>
+        <div class="flex flex-col max-h-[90vh]">
+          <!-- Header -->
+          <div class="px-6 pt-6 pb-4 border-b border-slate-100">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100 shrink-0">
+                <UIcon name="heroicons-book-open" class="h-6 w-6 text-blue-600" />
               </div>
-            </UFormField>
-
-            <UFormField
-              label="Content (optional short content)"
-              name="content"
-              class="w-full"
-            >
-              <UTextarea
-                v-model="formState.content"
-                placeholder="Enter short content"
-                class="w-full"
-              />
-            </UFormField>
-
-            <div v-if="lessonStore.error" class="text-sm text-red-600">
-              {{ lessonStore.error }}
+              <div class="flex-1 min-w-0">
+                <h3 class="text-xl font-semibold text-slate-900 tracking-tight">Create New Lesson</h3>
+                <p class="text-sm text-slate-500 mt-0.5">Fill in lesson details, then add content blocks. You can edit anything before saving.</p>
+              </div>
             </div>
 
-            <div class="flex justify-end gap-2">
-              <UButton
+            <!-- Tabs -->
+            <div class="mt-5 flex items-center gap-1 -mb-4">
+              <button
+                v-for="t in lessonTabs"
+                :key="t.key"
                 type="button"
-                color="neutral"
-                size="md"
-                @click.stop="closeLessonModal"
-                >Cancel
-              </UButton>
-              <UButton
-                type="submit"
-                color="primary"
-                size="md"
-                :loading="lmsClassStore.loading"
+                @click="activeTab = t.key"
+                :class="[
+                  'relative inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition rounded-t-lg',
+                  activeTab === t.key
+                    ? 'text-blue-700'
+                    : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50',
+                  t.key === 'content' && !canAccessContent ? 'opacity-50 cursor-not-allowed' : ''
+                ]"
+                :disabled="t.key === 'content' && !canAccessContent"
               >
-                Next: Create Content
-              </UButton>
-            </div>
-          </UForm>
-        </div>
-
-        <!-- STEP 2 -->
-        <div v-else class="max-w-4xl mx-auto p-6 space-y-6">
-          <UAlert
-            v-if="state.content_json.length === 0"
-            color="secondary"
-            icon="i-heroicons-information-circle"
-            title="No content blocks yet"
-            description="Press the Add Block button to start adding lesson content.."
-          />
-
-          <div v-else class="space-y-4">
-            <UCard
-              v-for="(block, idx) in state.content_json"
-              :key="block.__id || idx"
-              class="border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              <template #header>
-                <div class="flex items-center justify-between">
-                  <div class="font-semibold text-base text-gray-800">
-                    {{ idx + 1 }}. [{{ block.type || "unspecified" }}]
-                    <span class="text-gray-500">{{
-                      block.title || "(Untitled)"
-                    }}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <UButton
-                      size="xs"
-                      color="neutral"
-                      @click="moveUp(idx)"
-                      :disabled="idx === 0"
-                      icon="i-heroicons-arrow-up"
-                    />
-                    <UButton
-                      size="xs"
-                      color="neutral"
-                      @click="moveDown(idx)"
-                      :disabled="idx === state.content_json.length - 1"
-                      icon="i-heroicons-arrow-down"
-                    />
-                    <UButton
-                      size="xs"
-                      color="error"
-                      @click="removeBlock(idx)"
-                      icon="i-heroicons-trash"
-                    />
-                  </div>
-                </div>
-              </template>
-
-              <template #default>
-                <div
-                  v-if="(block as any).__isNew"
-                  class="p-3 bg-gray-50 rounded-lg border border-gray-200"
+                <UIcon :name="t.icon" class="h-4 w-4" />
+                {{ t.label }}
+                <span v-if="t.key === 'content' && state.content_json.length"
+                  class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-[11px] font-semibold rounded-full"
+                  :class="activeTab === 'content' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'"
                 >
-                  <p class="text-sm text-gray-600 mb-3 font-medium">
-                    Select content type:
-                  </p>
-                  <div class="flex flex-wrap gap-2">
-                    <UButton
-                      v-for="t in [
-                        'text',
-                        'image',
-                        'video',
-                        'multiple_choice',
-                        'essay',
-                      ]"
-                      :key="t"
-                      color="primary"
-                      size="sm"
-                      @click="setBlockType(idx, t)"
-                    >
-                      {{ t.replace("_", " ") }}
-                    </UButton>
-                  </div>
-                  <p class="text-xs text-gray-400 mt-2">
-                    After selecting the type, fill in the content details below.
-                  </p>
-                </div>
-
-                <div v-else class="space-y-3 mt-2">
-                  <!-- Text -->
-                  <div v-if="block.type === 'text'" class="space-y-2">
-                    <UInput
-                      v-model="block.title"
-                      placeholder="Text title"
-                      class="w-full"
-                    />
-                    <UTextarea
-                      v-model="block.content"
-                      class="w-full"
-                      placeholder="Content..."
-                    />
-                  </div>
-
-                  <!-- Image -->
-                  <div v-else-if="block.type === 'image'" class="space-y-2">
-                    <UInput
-                      v-model="block.title"
-                      placeholder="Image title"
-                      class="w-full"
-                    />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      @change="handleFileUpload($event, idx, 'image')"
-                      class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm"
-                    />
-                    <UInput
-                      v-model="block.alt"
-                      class="w-full"
-                      placeholder="Alternative text (optional)"
-                    />
-                    <div v-if="block.url" class="mt-2">
-                      <img
-                        :src="block.url"
-                        :alt="block.alt"
-                        class="rounded-lg max-h-48 object-contain border"
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Video -->
-                  <div v-else-if="block.type === 'video'" class="space-y-2">
-                    <UInput
-                      v-model="block.title"
-                      placeholder="Video title"
-                      class="w-full"
-                    />
-                    <input
-                      type="file"
-                      accept="video/*"
-                      @change="handleFileUpload($event, idx, 'video')"
-                      class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm"
-                    />
-                    <video
-                      v-if="block.url"
-                      controls
-                      class="rounded-lg border mt-2 w-full max-h-60"
-                    >
-                      <source :src="block.url" type="video/mp4" />
-                    </video>
-                  </div>
-
-                  <!-- Multiple Choice -->
-                  <div
-                    v-else-if="block.type === 'multiple_choice'"
-                    class="space-y-3"
-                  >
-                    <UInput
-                      v-model="block.title"
-                      placeholder="Questions"
-                      class="w-full"
-                    />
-                    <UDivider />
-                    <div class="space-y-3">
-                      <div
-                        v-for="(opt, oidx) in block.options"
-                        :key="oidx"
-                        class="flex items-center gap-2"
-                      >
-                        <UInput
-                          v-model="opt.value"
-                          placeholder="Value"
-                          class="w-full"
-                        />
-                        <label
-                          class="flex items-center gap-1 text-sm text-gray-600"
-                        >
-                          <input type="checkbox" v-model="opt.is_correct" />
-                          Benar
-                        </label>
-                        <UButton
-                          size="xs"
-                          color="error"
-                          icon="i-heroicons-trash"
-                          @click="removeOption(idx, oidx)"
-                        />
-                      </div>
-                      <UButton
-                        color="primary"
-                        size="sm"
-                        icon="i-heroicons-plus-small"
-                        @click="addOption(idx)"
-                      >
-                        Tambah Opsi
-                      </UButton>
-                      <UInput
-                        v-model="block.explanation"
-                        placeholder="Explanation (optional)"
-                        class="mt-2 w-full"
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Essay -->
-                  <div v-else-if="block.type === 'essay'" class="space-y-2">
-                    <UInput
-                      v-model="block.title"
-                      placeholder="Question"
-                      class="w-full"
-                    />
-                    <UInput
-                      v-model="block.placeholder"
-                      class="w-full"
-                      placeholder="Placeholder (opsional)"
-                    />
-                    <UInput
-                      type="number"
-                      v-model.number="block.max_length"
-                      class="w-full"
-                      placeholder="Maximum length (characters)"
-                    />
-                    <UInput
-                      v-model="block.explanation"
-                      class="w-full"
-                      placeholder="Explanation (optional)"
-                    />
-                  </div>
-                </div>
-              </template>
-            </UCard>
+                  {{ state.content_json.length }}
+                </span>
+                <span v-if="activeTab === t.key" class="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-500 rounded-full"></span>
+              </button>
+            </div>
           </div>
 
-          <div
-            class="flex flex-wrap items-center justify-between gap-3 mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200"
-          >
-            <div class="w-full">
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Generate Content With AI</label
-              >
+          <!-- Tab: Details -->
+          <div v-if="activeTab === 'details'" class="flex-1 overflow-y-auto px-6 py-6">
+            <UForm :schema="schema" :state="formState" class="space-y-5" @submit.prevent="syncDetailsAndContinue">
+              <UFormField label="Lesson Title" name="title" required>
+                <UInput v-model="formState.title" placeholder="e.g. Introduction to Algebra" class="w-full" size="lg" />
+              </UFormField>
+
+              <UFormField label="Description" name="summary" hint="Short overview shown to students" required>
+                <UTextarea v-model="formState.summary" placeholder="What will students learn in this lesson?" :rows="3" class="w-full" />
+              </UFormField>
+
+              <UFormField label="Short Content" name="content" hint="Optional preview text">
+                <UTextarea v-model="formState.content" placeholder="Optional short content..." :rows="3" class="w-full" />
+              </UFormField>
+
+              <div v-if="lessonStore.error" class="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-3 py-2.5">
+                <UIcon name="heroicons-exclamation-circle" class="h-5 w-5 shrink-0 mt-0.5" />
+                <p>{{ lessonStore.error }}</p>
+              </div>
+            </UForm>
+          </div>
+
+          <!-- Tab: Content -->
+          <div v-else class="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+            <!-- AI Generator -->
+            <div class="rounded-xl border border-violet-200 bg-violet-50/50 p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <UIcon name="heroicons-sparkles" class="h-4 w-4 text-violet-600" />
+                <span class="text-sm font-semibold text-violet-900">Generate with AI</span>
+              </div>
+              <p class="text-xs text-violet-700/80 mb-3">Describe the lesson content you want, and AI will generate the blocks for you.</p>
               <div class="flex gap-2">
                 <UTextarea
                   v-model="aiPrompt"
-                  placeholder="Exemple: make a space module and a short explanation with 5 multiple choices and ..."
-                  class="flex-1 h-20"
+                  placeholder="e.g. Module about photosynthesis with 5 multiple choices and 1 essay question"
+                  :rows="2"
+                  class="flex-1"
                 />
-                <div class="flex flex-col gap-2">
-                  <UButton
-                    color="secondary"
-                    size="md"
-                    :loading="aiLoading.block"
-                    @click="aiGenerateBlock"
-                    class="whitespace-nowrap"
-                  >
-                    <UIcon name="i-heroicons-sparkles" class="h-4 w-4" />
-                    Generate Ai
-                  </UButton>
-                  <span class="text-xs text-gray-500 text-center"
-                    >or create manual:</span
-                  >
-                  <UButton
-                    color="primary"
-                    icon="i-heroicons-plus-circle"
-                    size="sm"
-                    @click="addEmptyBlock"
-                    class="whitespace-nowrap"
-                  >
-                    Add Block
-                  </UButton>
+                <UButton
+                  color="primary"
+                  variant="solid"
+                  size="md"
+                  icon="heroicons-sparkles"
+                  :loading="aiLoading.block"
+                  @click="aiGenerateBlock"
+                  class="self-stretch"
+                >
+                  Generate
+                </UButton>
+              </div>
+            </div>
+
+            <!-- Block list -->
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-semibold text-slate-900">Content Blocks <span class="text-slate-400 font-normal">({{ state.content_json.length }})</span></h4>
+              <UButton color="neutral" size="sm" icon="heroicons-plus" @click="openBlockModalNew">
+                Add Block
+              </UButton>
+            </div>
+
+            <div v-if="state.content_json.length === 0" class="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-10 text-center">
+              <div class="w-12 h-12 mx-auto rounded-full bg-white border border-slate-200 flex items-center justify-center mb-3">
+                <UIcon name="heroicons-rectangle-stack" class="h-5 w-5 text-slate-400" />
+              </div>
+              <p class="text-sm font-medium text-slate-700">No content blocks yet</p>
+              <p class="text-xs text-slate-500 mt-1">Click "Add Block" or generate with AI to begin.</p>
+            </div>
+
+            <div v-else class="space-y-2">
+              <div
+                v-for="(block, idx) in state.content_json"
+                :key="block.__id || idx"
+                class="group flex items-start gap-3 bg-white rounded-xl border border-slate-200 p-4 hover:border-slate-300 hover:shadow-sm transition"
+              >
+                <div :class="['w-10 h-10 rounded-lg flex items-center justify-center shrink-0', blockTypeStyle(block.type).bg]">
+                  <UIcon :name="blockTypeStyle(block.type).icon" :class="['h-5 w-5', blockTypeStyle(block.type).text]" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{{ Number(idx) + 1 }}</span>
+                    <span :class="['text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded', blockTypeStyle(block.type).bg, blockTypeStyle(block.type).text]">
+                      {{ blockTypeStyle(block.type).label }}
+                    </span>
+                  </div>
+                  <p class="text-sm font-medium text-slate-900 mt-1 truncate">{{ block.title || '(Untitled)' }}</p>
+                  <p class="text-xs text-slate-500 truncate">{{ blockPreview(block) }}</p>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <UButton size="xs" variant="ghost" color="neutral" icon="heroicons-arrow-up" :disabled="idx === 0" @click="moveUp(Number(idx))" />
+                  <UButton size="xs" variant="ghost" color="neutral" icon="heroicons-arrow-down" :disabled="idx === state.content_json.length - 1" @click="moveDown(Number(idx))" />
+                  <UButton size="xs" variant="ghost" color="neutral" icon="heroicons-pencil-square" @click="openBlockModalEdit(Number(idx))" />
+                  <UButton size="xs" variant="ghost" color="error" icon="heroicons-trash" @click="removeBlock(Number(idx))" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <UButton
-              color="warning"
-              icon="i-heroicons-arrow-left"
-              @click="goToPrevious"
-            >
-              Back
+          <!-- Footer -->
+          <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+            <UButton variant="ghost" color="neutral" size="lg" @click="closeLessonModal">
+              Cancel
             </UButton>
-            <div class="text-sm text-gray-500">
-              Total blocks: {{ state.content_json.length }}
-            </div>
-          </div>
-
-          <div
-            class="pt-6 flex justify-between items-center border-t border-gray-200"
-          >
-            <div class="text-sm text-gray-600">Review JSON before saving</div>
-            <div class="flex gap-2">
-              <UButton color="neutral" @click="closeLessonModal"
-                >Cancel</UButton
-              >
+            <div class="flex items-center gap-2">
               <UButton
-                color="success"
+                v-if="activeTab === 'content'"
+                variant="outline"
+                color="neutral"
+                size="lg"
+                icon="heroicons-arrow-left"
+                @click="activeTab = 'details'"
+              >
+                Back to Details
+              </UButton>
+              <UButton
+                v-if="activeTab === 'details'"
+                color="primary"
+                size="lg"
+                icon="heroicons-arrow-right"
+                @click="syncDetailsAndContinue"
+              >
+                Continue to Content
+              </UButton>
+              <UButton
+                v-else
+                color="primary"
+                size="lg"
+                icon="heroicons-check"
                 :loading="lmsClassStore.loading"
                 @click="submitFinal"
               >
@@ -378,54 +192,187 @@
         </div>
       </template>
     </UModal>
+
+    <!-- Sub-Modal: Block Picker / Editor -->
+    <UModal v-model:open="blockModalOpen" :ui="{ content: 'sm:max-w-2xl' }">
+      <template #content>
+        <div class="flex flex-col max-h-[90vh]">
+          <!-- Header -->
+          <div class="px-6 pt-6 pb-4 border-b border-slate-100">
+            <h3 class="text-lg font-semibold text-slate-900 tracking-tight">
+              {{ editingBlockIndex === null ? 'Add Content Block' : 'Edit Content Block' }}
+            </h3>
+            <p class="text-sm text-slate-500 mt-0.5">Choose a type and fill in the content. The block will be added to your lesson.</p>
+          </div>
+
+          <div class="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+            <!-- Type picker (always shown for context) -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Block Type</label>
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <button
+                  v-for="t in blockTypes"
+                  :key="t.value"
+                  type="button"
+                  @click="changeDraftType(t.value)"
+                  :class="[
+                    'flex flex-col items-center gap-1.5 p-3 rounded-lg border transition text-center',
+                    draftBlock.type === t.value
+                      ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                  ]"
+                >
+                  <div :class="['w-8 h-8 rounded-lg flex items-center justify-center', t.bg]">
+                    <UIcon :name="t.icon" :class="['h-4 w-4', t.text]" />
+                  </div>
+                  <span :class="['text-xs font-medium', draftBlock.type === t.value ? 'text-blue-900' : 'text-slate-700']">
+                    {{ t.label }}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Config fields based on type -->
+            <div class="border-t border-slate-100 pt-5 space-y-4">
+              <!-- Text -->
+              <template v-if="draftBlock.type === 'text'">
+                <UFormField label="Title">
+                  <UInput v-model="draftBlock.title" placeholder="e.g. Introduction" class="w-full" />
+                </UFormField>
+                <UFormField label="Content" required>
+                  <UTextarea v-model="draftBlock.content" placeholder="Write the lesson content here..." :rows="6" class="w-full" />
+                </UFormField>
+              </template>
+
+              <!-- Image -->
+              <template v-else-if="draftBlock.type === 'image'">
+                <UFormField label="Title">
+                  <UInput v-model="draftBlock.title" placeholder="e.g. Diagram of cell structure" class="w-full" />
+                </UFormField>
+                <UFormField label="Image File" required>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    @change="handleDraftFileUpload($event, 'image')"
+                    class="block w-full text-sm text-slate-700 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+                  />
+                </UFormField>
+                <UFormField label="Alternative Text" hint="For accessibility">
+                  <UInput v-model="draftBlock.alt" placeholder="Describe the image" class="w-full" />
+                </UFormField>
+                <div v-if="draftBlock.url" class="rounded-lg border border-slate-200 p-2 bg-slate-50">
+                  <img :src="draftBlock.url" :alt="draftBlock.alt" class="rounded-md max-h-56 mx-auto object-contain" />
+                </div>
+              </template>
+
+              <!-- Video -->
+              <template v-else-if="draftBlock.type === 'video'">
+                <UFormField label="Title">
+                  <UInput v-model="draftBlock.title" placeholder="e.g. Lecture recording" class="w-full" />
+                </UFormField>
+                <UFormField label="Video File" required>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    @change="handleDraftFileUpload($event, 'video')"
+                    class="block w-full text-sm text-slate-700 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
+                  />
+                </UFormField>
+                <video v-if="draftBlock.url" controls class="rounded-lg border border-slate-200 w-full max-h-60">
+                  <source :src="draftBlock.url" type="video/mp4" />
+                </video>
+              </template>
+
+              <!-- Multiple Choice -->
+              <template v-else-if="draftBlock.type === 'multiple_choice'">
+                <UFormField label="Question" required>
+                  <UInput v-model="draftBlock.title" placeholder="e.g. What is the capital of France?" class="w-full" />
+                </UFormField>
+                <UFormField label="Options" hint="Tick the correct answer(s)" required>
+                  <div class="space-y-2">
+                    <div v-for="(opt, oidx) in draftBlock.options" :key="oidx" class="flex items-center gap-2">
+                      <label class="flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 cursor-pointer shrink-0" :class="opt.is_correct ? 'bg-blue-50 border-blue-300' : 'bg-white'">
+                        <input type="checkbox" v-model="opt.is_correct" class="accent-blue-600" />
+                      </label>
+                      <UInput v-model="opt.value" :placeholder="`Option ${Number(oidx) + 1}`" class="flex-1" />
+                      <UButton size="sm" variant="ghost" color="error" icon="heroicons-trash" @click="removeDraftOption(Number(oidx))" />
+                    </div>
+                    <UButton color="neutral" variant="outline" size="sm" icon="heroicons-plus" @click="addDraftOption">
+                      Add Option
+                    </UButton>
+                  </div>
+                </UFormField>
+                <UFormField label="Explanation" hint="Shown after answering">
+                  <UTextarea v-model="draftBlock.explanation" placeholder="Why is this the correct answer?" :rows="2" class="w-full" />
+                </UFormField>
+              </template>
+
+              <!-- Essay -->
+              <template v-else-if="draftBlock.type === 'essay'">
+                <UFormField label="Question" required>
+                  <UInput v-model="draftBlock.title" placeholder="e.g. Explain the water cycle" class="w-full" />
+                </UFormField>
+                <UFormField label="Placeholder" hint="Hint text inside the input">
+                  <UInput v-model="draftBlock.placeholder" placeholder="Write your answer here..." class="w-full" />
+                </UFormField>
+                <UFormField label="Maximum Length" hint="Number of characters">
+                  <UInput type="number" v-model.number="draftBlock.max_length" placeholder="500" class="w-full" />
+                </UFormField>
+                <UFormField label="Explanation">
+                  <UTextarea v-model="draftBlock.explanation" placeholder="Optional notes..." :rows="2" class="w-full" />
+                </UFormField>
+              </template>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+            <UButton variant="ghost" color="neutral" size="lg" @click="closeBlockModal">
+              Cancel
+            </UButton>
+            <UButton color="primary" size="lg" :icon="editingBlockIndex === null ? 'heroicons-plus' : 'heroicons-check'" @click="saveDraftBlock">
+              {{ editingBlockIndex === null ? 'Add Block' : 'Save Changes' }}
+            </UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import * as v from "valibot";
+import { useAuthStore } from "~/stores/auth";
 import { useLessonStore } from "~/stores/lesson";
 import { useLmsClassStore } from "~/stores/lmsclass";
-import { useAuthStore } from "~/stores/auth";
 import { useSubscriptionStore } from "~/stores/subscription";
-
-interface ContentBlock {
-  type: string;
-  title: string;
-  content?: string;
-  url?: string;
-  alt?: string;
-  options?: any[];
-  explanation?: string;
-  placeholder?: string;
-  max_length?: number;
-  __isNew?: boolean;
-  __id?: string;
-  [key: string]: any;
-}
-
-interface LessonState {
-  class_id: number;
-  title: string;
-  summary: string;
-  content: string;
-  content_json: ContentBlock[];
-  author_id: number;
-  is_published: boolean;
-}
 
 const aiLoading = reactive({ summary: false, block: false });
 const props = defineProps<{ classId: number }>();
 const lessonStore = useLessonStore();
 const lmsClassStore = useLmsClassStore();
 const authStore = useAuthStore();
+const toast = useToast();
+const subscriptionStore = useSubscriptionStore();
 
 // modal
 const modalOpen = ref(false);
-const step = ref<number>(1);
 const aiPrompt = ref("");
 
+type TabKey = "details" | "content";
+const activeTab = ref<TabKey>("details");
+
+const lessonTabs: { key: TabKey; label: string; icon: string }[] = [
+  { key: "details", label: "Details", icon: "heroicons-document-text" },
+  { key: "content", label: "Content Blocks", icon: "heroicons-rectangle-stack" },
+];
+
+const canAccessContent = computed(
+  () => formState.title.trim().length > 0 && formState.summary.trim().length > 0
+);
+
 // lesson full state
-const state = reactive<LessonState>({
+const state = reactive({
   class_id: 0,
   title: "",
   summary: "",
@@ -433,9 +380,9 @@ const state = reactive<LessonState>({
   content_json: [],
   author_id: 0,
   is_published: true,
-});
+} as any);
 
-// small form state for step1
+// details form state
 const formState = reactive({
   title: "",
   summary: "",
@@ -449,7 +396,7 @@ const schema = v.object({
 });
 
 const openLessonModal = () => {
-  step.value = 1;
+  activeTab.value = "details";
   formState.title = "";
   formState.summary = "";
   formState.content = "";
@@ -460,99 +407,174 @@ const openLessonModal = () => {
   newBlockCounter.value = 0;
   modalOpen.value = true;
 };
+
 const closeLessonModal = (): void => {
   modalOpen.value = false;
 };
 
-const gotoStep2 = () => {
+const syncDetailsAndContinue = () => {
+  if (!formState.title.trim() || !formState.summary.trim()) {
+    toast.add({ title: "Please fill in title and description first", color: "warning" });
+    return;
+  }
   state.title = formState.title;
   state.summary = formState.summary;
   state.content = formState.content;
-  step.value = 2;
-};
-const goToPrevious = (): void => {
-  step.value = 1;
+  activeTab.value = "content";
 };
 
+// ----- Block sub-modal state -----
 const newBlockCounter = ref(0);
+const blockModalOpen = ref(false);
+const editingBlockIndex = ref<number | null>(null);
 
-function makeEmptyBlock(): ContentBlock {
-  const id = ++newBlockCounter.value;
-  return {
-    type: "text",
-    title: "",
-    content: "",
-    __isNew: true,
-    __id: "new_" + id,
-  };
+const blockTypes = [
+  { value: "text", label: "Text", icon: "heroicons-bars-3-bottom-left", bg: "bg-sky-50", text: "text-sky-600" },
+  { value: "image", label: "Image", icon: "heroicons-photo", bg: "bg-amber-50", text: "text-amber-600" },
+  { value: "video", label: "Video", icon: "heroicons-video-camera", bg: "bg-rose-50", text: "text-rose-600" },
+  { value: "multiple_choice", label: "Multiple Choice", icon: "heroicons-list-bullet", bg: "bg-violet-50", text: "text-violet-600" },
+  { value: "essay", label: "Essay", icon: "heroicons-pencil-square", bg: "bg-blue-50", text: "text-blue-600" },
+] as const;
+
+function blockTypeStyle(type: string) {
+  const found = blockTypes.find((b) => b.value === type);
+  return found ?? { value: "text", label: type, icon: "heroicons-document", bg: "bg-slate-50", text: "text-slate-600" };
 }
 
-const addEmptyBlock = () => {
-  state.content_json.push(makeEmptyBlock());
+function blockPreview(block: any): string {
+  if (!block) return "";
+  switch (block.type) {
+    case "text":
+      return (block.content || "").slice(0, 80) + ((block.content || "").length > 80 ? "..." : "");
+    case "image":
+      return block.url ? "Image attached" : "No image yet";
+    case "video":
+      return block.url ? "Video attached" : "No video yet";
+    case "multiple_choice":
+      return `${block.options?.length || 0} options`;
+    case "essay":
+      return `Max ${block.max_length || 500} chars`;
+    default:
+      return "";
+  }
+}
+
+const draftBlock = reactive<any>({
+  type: "text",
+  title: "",
+  content: "",
+});
+
+function resetDraft() {
+  Object.keys(draftBlock).forEach((k) => delete draftBlock[k]);
+  draftBlock.type = "text";
+  draftBlock.title = "";
+  draftBlock.content = "";
+}
+
+function changeDraftType(type: string) {
+  const preservedTitle = draftBlock.title || "";
+  resetDraft();
+  draftBlock.type = type;
+  draftBlock.title = preservedTitle;
+  if (type === "image") {
+    draftBlock.url = "";
+    draftBlock.alt = "";
+  } else if (type === "video") {
+    draftBlock.url = "";
+  } else if (type === "multiple_choice") {
+    draftBlock.options = [
+      { value: "", is_correct: false },
+      { value: "", is_correct: false },
+    ];
+    draftBlock.explanation = "";
+  } else if (type === "essay") {
+    draftBlock.placeholder = "";
+    draftBlock.max_length = 500;
+    draftBlock.explanation = "";
+  }
+}
+
+const openBlockModalNew = () => {
+  editingBlockIndex.value = null;
+  resetDraft();
+  blockModalOpen.value = true;
 };
 
-const setBlockType = (index: number, type: string) => {
-  const block = state.content_json[index];
-  if (!block) return;
+const openBlockModalEdit = (idx: number) => {
+  const original = state.content_json[idx];
+  if (!original) return;
+  editingBlockIndex.value = idx;
+  resetDraft();
+  Object.assign(draftBlock, JSON.parse(JSON.stringify(original)));
+  blockModalOpen.value = true;
+};
 
-  let newBlock: any;
-  switch (type) {
-    case "text":
-      newBlock = {
-        type: "text",
-        title: block.title || "",
-        content: block.content || "",
-      };
-      break;
-    case "image":
-      newBlock = { type: "image", title: block.title || "", url: "", alt: "" };
-      break;
-    case "video":
-      newBlock = { type: "video", title: block.title || "", url: "" };
-      break;
-    case "multiple_choice":
-      newBlock = {
-        type: "multiple_choice",
-        title: "",
-        options: [
-          { label: "Option A", value: "a", is_correct: false },
-          { label: "Option B", value: "b", is_correct: false },
-        ],
-        explanation: "",
-      };
-      break;
-    case "essay":
-      newBlock = {
-        type: "essay",
-        title: "",
-        placeholder: "",
-        max_length: 500,
-        explanation: "",
-      };
-      break;
-    default:
-      newBlock = { type: "text", title: "", content: "" };
+const closeBlockModal = () => {
+  blockModalOpen.value = false;
+};
+
+const saveDraftBlock = () => {
+  // Basic validation per type
+  if (draftBlock.type !== "image" && draftBlock.type !== "video") {
+    if (!draftBlock.title?.trim() && draftBlock.type !== "text") {
+      toast.add({ title: "Please add a title/question", color: "warning" });
+      return;
+    }
+  }
+  if (draftBlock.type === "text" && !draftBlock.content?.trim()) {
+    toast.add({ title: "Content is required for text blocks", color: "warning" });
+    return;
+  }
+  if ((draftBlock.type === "image" || draftBlock.type === "video") && !draftBlock.url) {
+    toast.add({ title: `Please upload a ${draftBlock.type} file`, color: "warning" });
+    return;
+  }
+  if (draftBlock.type === "multiple_choice") {
+    const validOptions = (draftBlock.options || []).filter((o: any) => o.value?.trim());
+    if (validOptions.length < 2) {
+      toast.add({ title: "Add at least 2 options", color: "warning" });
+      return;
+    }
+    if (!validOptions.some((o: any) => o.is_correct)) {
+      toast.add({ title: "Mark at least one correct answer", color: "warning" });
+      return;
+    }
   }
 
-  newBlock.__id = block.__id;
-  state.content_json[index] = newBlock;
+  const blockToSave = JSON.parse(JSON.stringify(draftBlock));
+  if (!blockToSave.__id) blockToSave.__id = "new_" + ++newBlockCounter.value;
+
+  if (editingBlockIndex.value === null) {
+    state.content_json.push(blockToSave);
+  } else {
+    state.content_json[editingBlockIndex.value] = blockToSave;
+  }
+  blockModalOpen.value = false;
 };
 
-const handleFileUpload = (event: Event, index: number, type: string) => {
+const handleDraftFileUpload = (event: Event, _type: string) => {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = () => {
-    const base64String = reader.result as string;
-    if (state.content_json[index]) {
-      state.content_json[index].url = base64String;
-    }
+    draftBlock.url = reader.result as string;
   };
   reader.readAsDataURL(file);
 };
 
+const addDraftOption = () => {
+  if (!draftBlock.options) draftBlock.options = [];
+  draftBlock.options.push({ value: "", is_correct: false });
+};
+
+const removeDraftOption = (idx: number) => {
+  if (!draftBlock.options) return;
+  draftBlock.options.splice(idx, 1);
+};
+
+// ----- Block list operations -----
 const removeBlock = (index: number) => {
   if (index < 0 || index >= state.content_json.length) return;
   state.content_json.splice(index, 1);
@@ -576,43 +598,20 @@ const moveDown = (index: number) => {
   state.content_json[index] = next;
 };
 
-function isMultipleChoiceBlock(block: any): block is any {
-  return !!block && block.type === "multiple_choice";
-}
-
-const addOption = (blockIndex: number) => {
-  const block = state.content_json[blockIndex] as any;
-  if (!isMultipleChoiceBlock(block)) {
-    console.warn("Block is not multiple_choice or missing");
-    return;
-  }
-  if (!block.options) block.options = [];
-  block.options.push({
-    label: "New Option",
-    value: `opt${block.options.length + 1}`,
-    is_correct: false,
-  });
-};
-
-const removeOption = (blockIndex: number, optIndex: number) => {
-  const block = state.content_json[blockIndex] as any;
-  if (!isMultipleChoiceBlock(block) || !block.options) return;
-  block.options.splice(optIndex, 1);
-};
-
 const submitFinal = async () => {
   if (!authStore.user) return;
+  if (state.content_json.length === 0) {
+    toast.add({ title: "Add at least one content block before saving", color: "warning" });
+    return;
+  }
 
   state.class_id = props.classId;
   state.author_id = authStore.user.id;
 
-  await lessonStore.createLesson({ ...state } as any);
+  await lessonStore.createLesson({ ...state });
   await lmsClassStore.getDetailsClass(props.classId);
   closeLessonModal();
 };
-
-const toast = useToast();
-const subscriptionStore = useSubscriptionStore();
 
 const callAi = async (
   type: string,

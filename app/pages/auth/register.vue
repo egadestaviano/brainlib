@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-8">
     <div class="space-y-2">
-      <h1 class="text-2xl font-bold text-slate-900">Create your BrainLib account</h1>
+      <h1 class="text-2xl font-bold text-slate-900">Create your Mentora account</h1>
       <p class="text-sm text-slate-500">Start your learning journey today</p>
     </div>
 
@@ -133,7 +133,7 @@ const handleRegister = async () => {
   try {
     loading.value = true
     await authStore.register(form.value)
-    await router.push('/home')
+    await router.push('/classes')
   } catch (error: any) {
     useToast().add({
       title: 'Error',

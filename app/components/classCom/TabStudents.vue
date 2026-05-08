@@ -6,7 +6,7 @@
         :key="member.id"
         class="flex items-center gap-3 bg-white rounded-xl border border-slate-200 p-4"
       >
-        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-semibold shrink-0">
+        <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold shrink-0">
           {{ member.user.profile?.display_name?.[0]?.toUpperCase() || 'U' }}
         </div>
         <div class="min-w-0">
