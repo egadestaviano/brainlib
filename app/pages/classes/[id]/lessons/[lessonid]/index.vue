@@ -67,7 +67,14 @@
         <!-- Progress Bar -->
         <div class="bg-white rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-5">
           <div class="flex items-center justify-between text-sm mb-3">
-            <span class="font-semibold text-slate-700">Section {{ currentIndex + 1 }} of {{ totalPages }}</span>
+            <span class="font-semibold text-slate-700">
+              <template v-if="currentQuestionNumber > 0">
+                Question {{ currentQuestionNumber }} of {{ totalQuestions }}
+              </template>
+              <template v-else>
+                Section {{ currentIndex + 1 }} of {{ totalPages }}
+              </template>
+            </span>
             <span class="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-semibold">
               <UIcon name="heroicons-chart-bar" class="h-3 w-3" />
               {{ Math.round(((currentIndex + 1) / totalPages) * 100) }}%
@@ -86,27 +93,44 @@
               :key="idx"
               @click="goToPage(Number(idx))"
               :class="[
-                'flex-1 h-1 rounded-full transition-all duration-200 cursor-pointer',
-                idx === currentIndex
-                  ? 'bg-blue-500'
-                  : Number(idx) < currentIndex
-                    ? 'bg-blue-300'
-                    : 'bg-slate-200 hover:bg-slate-300'
+                'flex-1 h-1.5 rounded-full transition-all duration-200 cursor-pointer',
+                isReviewMode && results[Number(idx)] && ['multiple_choice', 'essay'].includes((lessonStore.lesson?.content_json as any[])?.[Number(idx)]?.type)
+                  ? results[Number(idx)].isCorrect 
+                    ? 'bg-blue-500' 
+                    : results[Number(idx)].isCorrect === false 
+                      ? 'bg-red-500' 
+                      : 'bg-blue-400'
+                  : Number(idx) === currentIndex
+                    ? 'bg-blue-500'
+                    : Number(idx) < currentIndex
+                      ? 'bg-blue-300'
+                      : 'bg-slate-200 hover:bg-slate-300',
+                Number(idx) === currentIndex && isReviewMode && results[Number(idx)]?.isCorrect === false ? 'ring-2 ring-red-500 ring-offset-1' : ''
               ]"
             />
           </div>
         </div>
 
         <!-- Content Block -->
-        <div v-if="currentBlock" class="bg-white border-x border-slate-200 shadow-sm overflow-hidden">
+        <div v-if="currentBlock" :class="[
+          'bg-white border-x border-slate-200 shadow-sm overflow-hidden transition-all duration-300',
+          isReviewMode && results[currentIndex]?.isCorrect === false ? 'ring-2 ring-red-500 ring-inset' : ''
+        ]">
           <!-- Block type indicator -->
           <div class="px-8 py-4 border-b border-slate-100 flex items-center gap-3">
             <div :class="['w-10 h-10 rounded-xl flex items-center justify-center', blockTypeStyle.bg]">
               <UIcon :name="blockTypeStyle.icon" :class="['h-5 w-5', blockTypeStyle.text]" />
             </div>
             <div class="flex-1 min-w-0">
-              <span :class="['text-[11px] font-semibold uppercase tracking-wider', blockTypeStyle.text]">{{ blockTypeStyle.label }}</span>
-              <p class="text-xs text-slate-500">Block {{ currentIndex + 1 }} of {{ totalPages }}</p>
+                <span :class="['text-[11px] font-semibold uppercase tracking-wider', blockTypeStyle.text]">{{ blockTypeStyle.label }}</span>
+                <p class="text-xs text-slate-500">
+                  <template v-if="currentQuestionNumber > 0">
+                    Question {{ currentQuestionNumber }} of {{ totalQuestions }}
+                  </template>
+                  <template v-else>
+                    Block {{ currentIndex + 1 }} of {{ totalPages }}
+                  </template>
+                </p>
             </div>
           </div>
 
@@ -321,21 +345,21 @@
               </div>
               <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
                 <p class="text-3xl font-bold text-slate-700">
-                  {{ score.correct + score.wrong > 0 ? Math.round((score.correct / (score.correct + score.wrong)) * 100) : 0 }}%
+                  {{ totalQuestions > 0 ? Math.round((score.correct / totalQuestions) * 100) : 0 }}%
                 </p>
                 <p class="text-xs text-slate-600 mt-1 font-semibold uppercase tracking-wider">Accuracy</p>
               </div>
             </div>
 
-            <div v-if="score.correct + score.wrong > 0" class="max-w-md mx-auto mb-8">
+            <div v-if="totalQuestions > 0" class="max-w-md mx-auto mb-8">
               <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
                 <span class="font-medium">Score</span>
-                <span>{{ score.correct }}/{{ score.correct + score.wrong }}</span>
+                <span>{{ score.correct }}/{{ totalQuestions }}</span>
               </div>
               <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   class="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all duration-700"
-                  :style="{ width: (score.correct / (score.correct + score.wrong)) * 100 + '%' }"
+                  :style="{ width: (score.correct / totalQuestions) * 100 + '%' }"
                 />
               </div>
             </div>
@@ -408,11 +432,11 @@
                       Pending
                     </span>
                   </td>
-                  <td class="px-8 py-4 text-center text-blue-600 font-semibold">{{ sub.has_submitted ? sub.score_correct : '-' }}</td>
+                  <td class="px-8 py-4 text-center text-blue-600 font-semibold">{{ sub.has_submitted ? `${sub.score_correct}/${totalQuestions}` : '-' }}</td>
                   <td class="px-8 py-4 text-center text-red-600 font-semibold">{{ sub.has_submitted ? sub.score_wrong : '-' }}</td>
                   <td class="px-8 py-4 text-center">
-                    <span v-if="sub.has_submitted && (sub.score_correct + sub.score_wrong > 0)" class="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-bold">
-                      {{ Math.round((sub.score_correct / (sub.score_correct + sub.score_wrong)) * 100) }}%
+                    <span v-if="sub.has_submitted && totalQuestions > 0" class="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-bold">
+                      {{ Math.round((sub.score_correct / totalQuestions) * 100) }}%
                     </span>
                     <span v-else class="text-slate-400">-</span>
                   </td>
@@ -473,6 +497,22 @@ const answers = reactive<Record<number, string>>({})
 const essayTimers = new Map<number, number | undefined>()
 
 const totalPages = computed(() => lessonStore.lesson?.content_json?.length ?? 0)
+const totalQuestions = computed(() => {
+  return lessonStore.lesson?.content_json?.filter((b: any) => 
+    b.type === 'multiple_choice' || b.type === 'essay'
+  ).length ?? 0
+})
+const currentQuestionNumber = computed(() => {
+  if (!currentBlock.value || !['multiple_choice', 'essay'].includes(currentBlock.value.type)) return 0
+  const blocks = lessonStore.lesson?.content_json || []
+  let count = 0
+  for (let i = 0; i <= currentIndex.value; i++) {
+    if (['multiple_choice', 'essay'].includes(blocks[i].type)) {
+      count++
+    }
+  }
+  return count
+})
 const currentBlock = computed(() => lessonStore.lesson?.content_json?.[currentIndex.value])
 
 const blockTypeStyle = computed(() => {
