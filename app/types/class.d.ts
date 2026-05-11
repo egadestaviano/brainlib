@@ -7,6 +7,7 @@ declare global {
         code?: string
         creator: User
         member_count: number
+        lesson_count?: number
         memberships: Membersift[] | []
         lessons: Lessons[] | []
         created_at: Date | string

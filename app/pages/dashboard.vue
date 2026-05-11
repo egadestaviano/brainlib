@@ -38,6 +38,7 @@
           <template #footer>
             <div class="flex items-center justify-between">
               <span class="text-sm text-slate-600">{{ classList.member_count }} Students</span>
+              <span class="text-sm text-slate-600">{{ classList.lesson_count || 0 }} Lessons</span>
               <UIcon name="i-heroicons-chevron-right" class="w-4 h-4 text-slate-300" />
             </div>
           </template>

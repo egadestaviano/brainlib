@@ -134,10 +134,10 @@
                 <UIcon name="heroicons-users" class="h-3.5 w-3.5" />
                 <span><span class="font-medium text-slate-700">{{ classList.member_count }}</span> students</span>
               </div>
-              <!-- <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1.5">
                 <UIcon name="heroicons-book-open" class="h-3.5 w-3.5" />
-                <span><span class="font-medium text-slate-700">{{ classList.lessons?.length || 0 }}</span> lessons</span>
-              </div> -->
+                <span><span class="font-medium text-slate-700">{{ classList.lesson_count || 0 }}</span> lessons</span>
+              </div>
             </div>
             <span class="inline-flex w-full mt-5 items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-50 border text-xs font-medium text-slate-700 group-hover:bg-slate-700 group-hover:text-white transition">
               {{ isTeacherOrAdmin ? 'Manage Class' : 'Open Class' }}
