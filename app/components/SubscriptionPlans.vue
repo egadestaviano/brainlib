@@ -163,12 +163,15 @@
           <button v-else-if="isHigherThan('medium')" disabled class="w-full px-4 py-2.5 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium cursor-not-allowed">
             Lower Plan Locked
           </button>
-          <div v-else id="paypal-button-medium" class="w-full min-h-[45px]">
-            <button v-if="!paypalLoaded" disabled class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-500/20 text-blue-700 text-sm font-medium cursor-wait">
-              <span class="w-4 h-4 border-2 border-blue-300 border-t-blue-700 rounded-full animate-spin" />
-              Loading PayPal...
-            </button>
-          </div>
+          <button
+            v-else
+            @click="handleStripeCheckout('medium')"
+            :disabled="stripeLoading === 'medium'"
+            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+          >
+            <span v-if="stripeLoading === 'medium'" class="w-4 h-4 border-2 border-blue-300 border-t-white rounded-full animate-spin" />
+            {{ stripeLoading === 'medium' ? 'Redirecting...' : 'Subscribe Now' }}
+          </button>
         </div>
       </div>
 
@@ -208,12 +211,15 @@
           <button v-if="isActive('enterprise')" disabled class="w-full px-4 py-2.5 rounded-lg bg-violet-100 text-violet-700 text-sm font-semibold cursor-not-allowed">
             Current Plan Active
           </button>
-          <div v-else id="paypal-button-enterprise" class="w-full min-h-[45px]">
-            <button v-if="!paypalLoaded" disabled class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-violet-100 text-violet-700 text-sm font-medium cursor-wait">
-              <span class="w-4 h-4 border-2 border-violet-200 border-t-violet-700 rounded-full animate-spin" />
-              Loading PayPal...
-            </button>
-          </div>
+          <button
+            v-else
+            @click="handleStripeCheckout('enterprise')"
+            :disabled="stripeLoading === 'enterprise'"
+            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium transition cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+          >
+            <span v-if="stripeLoading === 'enterprise'" class="w-4 h-4 border-2 border-violet-300 border-t-white rounded-full animate-spin" />
+            {{ stripeLoading === 'enterprise' ? 'Redirecting...' : 'Subscribe Now' }}
+          </button>
         </div>
       </div>
     </div>
@@ -226,11 +232,10 @@ import { api } from '~/utils/api'
 
 const subscriptionStore = useSubscriptionStore()
 const config = useRuntimeConfig()
-const paypalLoaded = ref(false)
 const toast = useToast()
 
 const billingCycle = ref<'monthly' | 'yearly'>('monthly')
-const pendingSubIds = ref<Record<string, number>>({})
+const stripeLoading = ref<string | null>(null)
 
 const starterFeatures = [
   '1 Class creation',
@@ -291,120 +296,66 @@ const selectFree = async (planSlug: string) => {
   }
 }
 
-const loadPayPalScript = () => {
-  return new Promise((resolve, reject) => {
-    if ((window as any).paypal) {
-      paypalLoaded.value = true
-      resolve((window as any).paypal)
-      return
-    }
-
-    const script = document.createElement('script')
-    const clientId = config.public.paypalClientId || 'test'
-    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture`
-    script.onload = () => {
-      paypalLoaded.value = true
-      resolve((window as any).paypal)
-    }
-    script.onerror = () => {
-      toast.add({
-        title: 'Error',
-        description: 'Failed to load PayPal SDK',
-        color: 'error',
-      })
-      reject(new Error('PayPal SDK failed to load'))
-    }
-    document.head.appendChild(script)
-  })
-}
-
-const renderPayPalButton = (containerId: string, planSlug: string) => {
-  const container = document.getElementById(containerId)
-  if (!container || container.querySelector('.paypal-buttons')) return
-
+const handleStripeCheckout = async (planSlug: string) => {
   const planId = (planIdMap.value as any)[planSlug]
   if (!planId) return
 
-  ;(window as any).paypal.Buttons({
-    style: {
-      layout: 'vertical',
-      color: 'gold',
-      shape: 'rect',
-      label: 'pay',
-      height: 45,
-    },
-    createOrder: async () => {
-      try {
-        const result = await api.post<any>('/subscriptions', {
-          plan_id: planId,
-          gateway: 'paypal',
-        })
+  stripeLoading.value = planSlug
 
-        if (result.checkout_url) {
-          const url = new URL(result.checkout_url)
-          const token = url.searchParams.get('token')
+  try {
+    const result = await api.post<any>('/subscriptions', {
+      plan_id: planId,
+      gateway: 'stripe',
+    })
 
-          const subIdMatch = result.redirect_path?.match(/sub_id=(\d+)/)
-          if (subIdMatch) {
-            pendingSubIds.value[planSlug] = parseInt(subIdMatch[1])
-          }
+    // Backend returns a Stripe Checkout session URL
+    if (result.checkout_url) {
+      window.location.href = result.checkout_url
+      return
+    }
 
-          return token
-        }
+    // Fallback: if backend returns session_id, use Stripe.js to redirect
+    if (result.session_id) {
+      const stripeKey = config.public.stripePublishableKey
+      if (!stripeKey) throw new Error('Stripe key not configured')
 
-        throw new Error('Could not create order')
-      } catch (e) {
-        console.error('Create Order Error:', e)
-        toast.add({
-          title: 'Order Failed',
-          description: 'Could not initialize payment. Please try again.',
-          color: 'error',
-        })
-        throw e
+      const stripe = (window as any).Stripe?.(stripeKey)
+      if (!stripe) {
+        // Load Stripe.js on-the-fly if not already loaded
+        await loadStripeScript()
+        const stripeInstance = (window as any).Stripe(stripeKey)
+        await stripeInstance.redirectToCheckout({ sessionId: result.session_id })
+      } else {
+        await stripe.redirectToCheckout({ sessionId: result.session_id })
       }
-    },
-    onApprove: async (data: any) => {
-      try {
-        const subId = pendingSubIds.value[planSlug]
-        if (!subId) throw new Error('Missing subscription ID')
+      return
+    }
 
-        await api.post('/subscriptions/paypal-capture', {
-          order_id: data.orderID,
-          sub_id: subId,
-        })
+    throw new Error('Could not create checkout session')
+  } catch (e: any) {
+    console.error('Stripe Checkout Error:', e)
+    toast.add({
+      title: 'Payment Error',
+      description: e?.data?.message || 'Could not initialize payment. Please try again.',
+      color: 'error',
+    })
+  } finally {
+    stripeLoading.value = null
+  }
+}
 
-        toast.add({
-          title: 'Welcome Aboard!',
-          description: 'Your subscription has been activated successfully.',
-          color: 'success',
-        })
-
-        await subscriptionStore.fetchCurrentSubscription()
-      } catch (e) {
-        console.error('Capture Error:', e)
-        toast.add({
-          title: 'Payment Error',
-          description: 'Payment was completed but activation failed. Contact support.',
-          color: 'error',
-        })
-      }
-    },
-    onCancel: () => {
-      toast.add({
-        title: 'Cancelled',
-        description: 'Payment process was cancelled.',
-        color: 'neutral',
-      })
-    },
-    onError: (err: any) => {
-      console.error('PayPal Button Error:', err)
-      toast.add({
-        title: 'PayPal Error',
-        description: 'Something went wrong with the PayPal button.',
-        color: 'error',
-      })
-    },
-  }).render(`#${containerId}`)
+const loadStripeScript = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if ((window as any).Stripe) {
+      resolve()
+      return
+    }
+    const script = document.createElement('script')
+    script.src = 'https://js.stripe.com/v3/'
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Failed to load Stripe.js'))
+    document.head.appendChild(script)
+  })
 }
 
 const isHigherThan = (planSlug: string) => {
@@ -419,20 +370,6 @@ const isHigherThan = (planSlug: string) => {
   return currentId > (targetId || 0)
 }
 
-const initPayPalButtons = () => {
-  if (!(window as any).paypal) {
-    console.warn('PayPal SDK not loaded yet')
-    return
-  }
-
-  if (!isActive('medium') && !isHigherThan('medium')) {
-    renderPayPalButton('paypal-button-medium', 'medium')
-  }
-  if (!isActive('enterprise') && !isHigherThan('enterprise')) {
-    renderPayPalButton('paypal-button-enterprise', 'enterprise')
-  }
-}
-
 onMounted(async () => {
   try {
     await subscriptionStore.fetchPlans()
@@ -440,24 +377,5 @@ onMounted(async () => {
   } catch (err) {
     console.error('Failed to fetch initial subscription data:', err)
   }
-
-  try {
-    await loadPayPalScript()
-    setTimeout(() => {
-      initPayPalButtons()
-    }, 1000)
-  } catch (e) {
-    console.error('PayPal script load error:', e)
-  }
 })
-
-watch(
-  () => subscriptionStore.getSubscription?.id,
-  async () => {
-    if (paypalLoaded.value) {
-      await nextTick()
-      setTimeout(initPayPalButtons, 100)
-    }
-  }
-)
 </script>
