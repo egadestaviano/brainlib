@@ -8,11 +8,11 @@
       (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : 'justify-between'
     ]">
       <NuxtLink to="/classes" v-if="!sidebar.collapsed || sidebar.hovered" class="block">
-        <img src="/favicon.svg" alt="Mentora Logo" class="h-10 w-auto object-contain" />
+        <img src="/favicon.svg" alt="Brainlib Logo" class="h-10 w-auto object-contain" />
       </NuxtLink>
 
       <NuxtLink to="/classes" v-else class="flex items-center justify-center">
-        <img src="/favicon.svg" alt="Mentora Icon" class="h-10 w-10 object-contain" />
+        <img src="/favicon.svg" alt="Brainlib Icon" class="h-10 w-10 object-contain" />
       </NuxtLink>
     </div>
 
@@ -120,15 +120,22 @@ const LmsClassStore = useLmsClassStore()
 const authStore = useAuthStore()
 const route = useRoute()
 
+const isStudent = computed(() => {
+  const roles = authStore.user?.roles?.map(r => r.toLowerCase()) || []
+  return roles.includes('student')
+})
+
 const isAdmin = computed(() => {
   const roles = authStore.user?.roles?.map(r => r.toLowerCase()) || []
   return roles.includes('admin')
 })
 
 const footerNav = computed(() => {
-  const base = [
-    { label: 'Subscription', icon: 'heroicons-credit-card', to: '/subscription' },
-  ]
+  const base = []
+  
+  if (!isStudent.value && !isAdmin.value) {
+    base.push({ label: 'Subscription', icon: 'heroicons-credit-card', to: '/subscription' })
+  }
   
   if (isAdmin.value) {
     base.push({ label: 'System Analytics', icon: 'heroicons-chart-bar', to: '/dashboard' })

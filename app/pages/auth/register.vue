@@ -1,11 +1,22 @@
 <template>
   <div class="space-y-8">
     <div class="space-y-2">
-      <h1 class="text-2xl font-bold text-slate-900">Create your Mentora account</h1>
+      <h1 class="text-2xl font-bold text-slate-900">Create your Brainlib account</h1>
       <p class="text-sm text-slate-500">Start your learning journey today</p>
     </div>
 
     <UForm :state="form" @submit="handleRegister" class="space-y-5">
+      <UFormField label="Full Name" name="display_name" required>
+        <UInput
+          class="w-full"
+          v-model="form.display_name"
+          type="text"
+          size="lg"
+          placeholder="John Doe"
+          autocomplete="name"
+        />
+      </UFormField>
+
       <UFormField label="Email" name="email" required>
         <UInput
           class="w-full"
@@ -39,6 +50,16 @@
         />
       </UFormField>
 
+      <UFormField label="Register As" name="role" required>
+        <select
+          v-model="form.role"
+          class="w-full h-11 px-3.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm font-medium ring-offset-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 shadow-sm transition"
+        >
+          <option value="student">Student (Learning & Joining classes)</option>
+          <option value="teacher">Teacher (Creating & Managing classes)</option>
+        </select>
+      </UFormField>
+
       <div class="flex items-center">
         <UCheckbox
           v-model="form.is_active"
@@ -51,7 +72,7 @@
         type="submit"
         block
         :loading="loading"
-        :disabled="loading || !isPasswordMatch"
+        :disabled="loading || !isPasswordMatch || !form.is_active"
         color="neutral"
         class="h-11 text-base font-medium"
       >
@@ -113,7 +134,9 @@ const confirmPassword = ref('')
 const form = ref<AuthRegister>({
   email: '',
   password: '',
-  is_active: false
+  is_active: false,
+  display_name: '',
+  role: 'student'
 })
 
 const isPasswordMatch = computed(() => {
@@ -130,6 +153,15 @@ const handleRegister = async () => {
     return
   }
 
+  if (!form.value.is_active) {
+    useToast().add({
+      title: 'Error',
+      description: 'You must agree to the Terms of Service to register',
+      color: 'warning'
+    })
+    return
+  }
+
   try {
     loading.value = true
     await authStore.register(form.value)
@@ -137,7 +169,7 @@ const handleRegister = async () => {
   } catch (error: any) {
     useToast().add({
       title: 'Error',
-      description: error.message || 'Registration failed, please try again',
+      description: error.data?.error || error.message || 'Registration failed, please try again',
       color: 'warning'
     })
   } finally {
@@ -150,6 +182,8 @@ const registerAsDemo = (email: string) => {
   form.value.password = 'password';
   confirmPassword.value = 'password';
   form.value.is_active = true;
+  form.value.display_name = email.split('@')[0];
+  form.value.role = email.includes('teacher') ? 'teacher' : 'student';
   handleRegister();
 }
 </script>

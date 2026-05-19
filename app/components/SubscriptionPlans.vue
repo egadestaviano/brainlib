@@ -48,34 +48,6 @@
       </div>
     </div>
 
-    <!-- AI Usage info -->
-    <div v-if="subscriptionStore.getSubscription" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-      <div class="flex items-center justify-between gap-4 mb-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center ring-1 ring-violet-100 shrink-0">
-            <UIcon name="heroicons-sparkles" class="h-4 w-4 text-violet-600" />
-          </div>
-          <div>
-            <p class="text-sm font-semibold text-slate-900">AI Generation Usage</p>
-            <p class="text-xs text-slate-500">Resets monthly with your subscription</p>
-          </div>
-        </div>
-        <p class="text-sm font-semibold tabular-nums text-slate-700 whitespace-nowrap">
-          <span class="text-blue-600">{{ subscriptionStore.getSubscription.ai_usage }}</span>
-          <span class="text-slate-400 mx-1">/</span>
-          <span>{{ subscriptionStore.getSubscription.ai_limit === -1 ? '∞' : subscriptionStore.getSubscription.ai_limit }}</span>
-        </p>
-      </div>
-      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div
-          class="h-full rounded-full transition-all duration-500"
-          :style="{
-            width: subscriptionStore.getSubscription.ai_limit === -1 ? '100%' : Math.min((subscriptionStore.getSubscription.ai_usage / subscriptionStore.getSubscription.ai_limit) * 100, 100) + '%',
-            backgroundColor: (subscriptionStore.getSubscription.ai_limit !== -1 && subscriptionStore.getSubscription.ai_usage >= subscriptionStore.getSubscription.ai_limit) ? '#ef4444' : '#3b82f6'
-          }"
-        />
-      </div>
-    </div>
 
     <!-- Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5" :key="subscriptionStore.getSubscription?.id || 'none'">
@@ -241,19 +213,16 @@ const starterFeatures = [
   '1 Class creation',
   'Max 10 Students per class',
   'Max 5 Lessons per class',
-  '5 AI Generate usages / month',
 ]
 const mediumFeatures = [
   'Up to 10 Classes creation',
   'Max 50 Students per class',
   'Max 20 Lessons per class',
-  '50 AI Generate usages / month',
 ]
 const enterpriseFeatures = [
   'Unlimited Classes creation',
   'Unlimited Students',
   'Unlimited Lessons per class',
-  'Unlimited AI Generate',
 ]
 
 const planIdMap = computed(() => {

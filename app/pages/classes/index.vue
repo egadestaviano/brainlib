@@ -179,7 +179,7 @@
                 <div class="flex-1">
                   <p>{{ createError }}</p>
                   <button
-                    v-if="createLimitReached"
+                    v-if="createLimitReached && !isAdmin"
                     type="button"
                     class="mt-1 inline-flex items-center gap-1 text-red-700 font-medium underline underline-offset-2 hover:text-red-800"
                     @click="goToSubscription"
@@ -263,6 +263,11 @@ import { useAuthStore } from '~/stores/auth'
 const LmsClassStore = useLmsClassStore()
 const authStore = useAuthStore()
 const toast = useToast()
+
+const isAdmin = computed(() => {
+  const roles = authStore.user?.roles?.map(r => r.toLowerCase()) || []
+  return roles.includes('admin')
+})
 
 const isTeacherOrAdmin = computed(() => {
   const roles = authStore.user?.roles?.map(r => r.toLowerCase()) || []

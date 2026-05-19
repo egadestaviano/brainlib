@@ -627,23 +627,11 @@ const callAi = async (
     });
     
     if (!res || !res.success) {
-      if (res?.limitReached) {
-        toast.add({
-          title: 'Limit Reached',
-          description: res.error || 'You have reached your AI generation limit.',
-          color: 'error',
-          actions: [
-            { label: 'Upgrade Plan', onClick: () => { navigateTo('/subscriptions') } }
-          ]
-
-        });
-      } else {
-        toast.add({
-          title: 'AI Error',
-          description: res?.error || 'Failed to generate content.',
-          color: 'error'
-        });
-      }
+      toast.add({
+        title: 'AI Error',
+        description: res?.error || 'Failed to generate content.',
+        color: 'error'
+      });
       console.error("AI error", res);
       return "";
     }

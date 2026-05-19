@@ -156,7 +156,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
-import { userService } from '~/services/userService'
+import { api } from '~/utils/api'
 
 const auth = useAuthStore()
 const toast = useToast()
@@ -189,9 +189,12 @@ const resetForm = () => {
 const handleUpdateProfile = async () => {
   try {
     saving.value = true
-    await userService.update({
-      id: auth.user!.id,
-      name: form.display_name,
+    if (!auth.user?.profile?.id) {
+      throw new Error('Profile not found')
+    }
+    await api.put(`/user-profiles/${auth.user.profile.id}`, {
+      display_name: form.display_name,
+      bio: form.bio
     })
     await auth.fetchCurrentUser()
     toast.add({ title: 'Profile updated successfully', color: 'success' })

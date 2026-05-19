@@ -11,6 +11,8 @@ declare global {
 
   interface AuthRegister extends AuthLogin {
     is_active: boolean
+    display_name?: string
+    role?: string
   }
 
   interface UserMe extends User {

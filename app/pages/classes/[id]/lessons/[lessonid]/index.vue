@@ -475,17 +475,20 @@ const isTeacher = computed(() => {
 
 const allMembersSubmissions = computed(() => {
   const members = lmsClassStore.classDetail?.memberships || []
-  return members.map((member:any) => {
-    const submission = lessonStore.allSubmissions.find((s:any) => s.user_id === member.user.id)
-    return {
-      user_id: member.user.id,
-      user_name: member.user.profile?.display_name || member.user.email,
-      role: member.role,
-      ...submission,
-      has_submitted: !!submission
-    }
-  })
+  return members
+    .filter((member: any) => member && member.user)
+    .map((member:any) => {
+      const submission = (lessonStore.allSubmissions || []).find((s:any) => s.user_id === member.user.id)
+      return {
+        user_id: member.user.id,
+        user_name: member.user.profile?.display_name || member.user.email,
+        role: member.role,
+        ...submission,
+        has_submitted: !!submission
+      }
+    })
 })
+
 
 const currentIndex = ref(0)
 const isSubmitted = ref(false)

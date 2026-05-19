@@ -4,6 +4,7 @@ declare global {
     email: string
     is_active: boolean
     profile: {
+      id: number
       avatar_file_id: string | null,
       bio: string
       display_name: string

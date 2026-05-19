@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-8">
     <div class="space-y-2">
-      <h1 class="text-2xl font-bold text-slate-900">Sign in to Mentora</h1>
+      <h1 class="text-2xl font-bold text-slate-900">Sign in to Brainlib</h1>
       <p class="text-sm text-slate-500">Enter your credentials to access your account</p>
     </div>
 
@@ -87,7 +87,7 @@ const handleLogin = async () => {
   } catch (error: any) {
     useToast().add({
       title: 'Error',
-      description: error.message || 'Login gagal, silakan coba lagi',
+      description: error.data?.error || error.message || 'Login gagal, silakan coba lagi',
       color: 'warning'
     })
   } finally {

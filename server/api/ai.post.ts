@@ -33,33 +33,7 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  const token = getCookie(event, 'token');
-  if (token) {
-    try {
-      const checkRes: any = await $fetch(`${API_BASE_URL}/subscriptions/record-ai-usage`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      if (!checkRes.success) {
-         throw createError({
-           statusCode: 403,
-           statusMessage: checkRes.error || "AI limit reached"
-         });
-      }
-    } catch (err: any) {
-      if (err.statusCode === 403) {
-        return {
-          success: false,
-          error: err.statusMessage || "AI generation limit reached. Please upgrade your plan.",
-          limitReached: true
-        };
-      }
-      // If it's another error (like 401), we might want to ignore it or handle it
-      console.error("Error checking AI limit:", err);
-    }
-  }
+
 
   const templates: Record<string, string> = {
 
@@ -195,6 +169,7 @@ Return ONLY the JSON array and nothing else.`,
         }
       }
     }
+
 
     return {
       success: true,
