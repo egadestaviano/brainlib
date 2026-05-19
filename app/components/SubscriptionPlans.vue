@@ -183,6 +183,9 @@
           <button v-if="isActive('enterprise')" disabled class="w-full px-4 py-2.5 rounded-lg bg-violet-100 text-violet-700 text-sm font-semibold cursor-not-allowed">
             Current Plan Active
           </button>
+          <button v-else-if="isHigherThan('enterprise')" disabled class="w-full px-4 py-2.5 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium cursor-not-allowed">
+            Lower Plan Locked
+          </button>
           <button
             v-else
             @click="handleStripeCheckout('enterprise')"
@@ -328,7 +331,6 @@ const loadStripeScript = (): Promise<void> => {
 }
 
 const isHigherThan = (planSlug: string) => {
-  const targetId = (planIdMap.value as any)[planSlug]
   const currentId = subscriptionStore.getSubscription?.plan_id || 0
 
   const expiresAt = subscriptionStore.getSubscription?.expires_at
@@ -336,13 +338,45 @@ const isHigherThan = (planSlug: string) => {
 
   if (isExpired) return false
 
-  return currentId > (targetId || 0)
+  const isCurrentYearly = YEARLY_PLAN_IDS.includes(currentId)
+
+  // Jika user punya yearly, semua plan monthly di-lock (tidak bisa downgrade)
+  if (isCurrentYearly && billingCycle.value === 'monthly') {
+    return true
+  }
+
+  // Jika user punya monthly, semua plan yearly bisa diakses (upgrade)
+  // Bandingkan berdasarkan tier, bukan ID mentah
+  const currentTier = PLAN_TIER_MAP[currentId] || 0
+  const targetTier = SLUG_TIER_MAP[planSlug] || 0
+
+  return currentTier > targetTier
+}
+
+// Yearly plan IDs: 4 (starter), 5 (medium), 6 (enterprise)
+const YEARLY_PLAN_IDS = [4, 5, 6]
+
+// Mapping plan ID → tier level (1=starter, 2=medium, 3=enterprise)
+const PLAN_TIER_MAP: Record<number, number> = {
+  1: 1, 2: 2, 3: 3,  // monthly
+  4: 1, 5: 2, 6: 3,  // yearly
+}
+
+// Tier mapping by slug
+const SLUG_TIER_MAP: Record<string, number> = {
+  starter: 1, medium: 2, enterprise: 3,
 }
 
 onMounted(async () => {
   try {
     await subscriptionStore.fetchPlans()
     await subscriptionStore.fetchCurrentSubscription()
+
+    // Auto-detect billing cycle from current active subscription
+    const currentPlanId = subscriptionStore.getSubscription?.plan_id
+    if (currentPlanId && YEARLY_PLAN_IDS.includes(currentPlanId)) {
+      billingCycle.value = 'yearly'
+    }
   } catch (err) {
     console.error('Failed to fetch initial subscription data:', err)
   }
