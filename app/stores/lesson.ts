@@ -42,7 +42,7 @@ export const useLessonStore = defineStore('lesson', {
           try {
             res.content_json = JSON.parse(res.content_json)
           } catch (err) {
-            console.warn("Gagal parse content_json:", err)
+            console.warn("Failed to parse content_json:", err)
             res.content_json = []
           }
         } else if (!Array.isArray(res.content_json)) {

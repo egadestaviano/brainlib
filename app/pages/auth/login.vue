@@ -87,7 +87,7 @@ const handleLogin = async () => {
   } catch (error: any) {
     useToast().add({
       title: 'Error',
-      description: error.data?.error || error.message || 'Login gagal, silakan coba lagi',
+      description: error.data?.error || error.message || 'Login failed, please try again',
       color: 'warning'
     })
   } finally {

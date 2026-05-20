@@ -18,7 +18,7 @@ export default defineNuxtConfig({
       titleTemplate: "%s | BrainLib - Smart Learning Management System",
       title: "BrainLib",
       htmlAttrs: {
-        lang: "id", // Indonesian language for better SEO/A11y context
+        lang: "en", // English language for better SEO/A11y context
       },
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -29,7 +29,7 @@ export default defineNuxtConfig({
         { property: "og:type", content: "website" },
         { property: "og:url", content: "https://brainlib.egadestaviano.my.id/" },
         { property: "og:title", content: "BrainLib - Smart Learning Management System" },
-        { property: "og:description", content: "Platform pendidikan cerdas bertenaga AI untuk manajemen sekolah dan pembelajaran modern." },
+        { property: "og:description", content: "Smart AI-driven education platform for modern school management and learning." },
         { property: "og:image", content: "/image/banner-seo.png" },
         // Twitter
         { name: "twitter:card", content: "summary_large_image" },

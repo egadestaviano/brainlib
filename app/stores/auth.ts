@@ -39,14 +39,8 @@ export const useAuthStore = defineStore('auth', {
     async register(payload: AuthRegister) {
       try {
         const response = await authService.register(payload)
-        this.setAuth(response)
-
-        await nextTick()
-
-        this.user = await this.fetchCurrentUser()
         return response
       } catch (error) {
-        this.clearAuth()
         throw error
       }
     },
