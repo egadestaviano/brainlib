@@ -9,9 +9,10 @@
         </main>
       </div>
     </div>
+    <TutorialWalkthroughOverlay />
   </TooltipProvider>
 </template>
 
 <script setup lang="ts">
-import {  TooltipProvider } from 'reka-ui'
+import { TooltipProvider } from 'reka-ui'
 </script>

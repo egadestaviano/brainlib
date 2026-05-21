@@ -57,7 +57,7 @@ Rules (must be followed):
 1. Return a JSON array: e.g. [ {block1}, {block2}, ... ] — nothing else.
 2. For multiple_choice blocks, include **exactly 5** options unless user prompt requests otherwise. Mark one or more option(s) with is_correct: true.
 3. If user asks for multiple essays, return each essay as its own block object (e.g., two essay blocks).
-4. Keep text lengths concise but informative. Use Indonesian when user prompt is Indonesian.
+4. Keep text lengths concise but informative. Use English.
 5. Do not include extraneous fields. If a field is not applicable, omit it.
 6. If the user prompt requests a topic + short explanation + quiz + essays, generate those blocks in the same array in a logical order (e.g., text -> multiple_choice -> essay -> essay).
 7. Keep generation deterministic where possible: avoid adding commentary or metadata.
@@ -96,7 +96,7 @@ Example expected output format (exact JSON array; this is an instructive example
 ]
 
 Return ONLY the JSON array and nothing else.`,
-    rewrite: `You are a helpful editor. Rewrite the given Indonesian text to be clearer and concise.`,
+    rewrite: `You are a helpful editor. Rewrite the given English text to be clearer and concise.`,
     mcq: `You are a quiz maker. Based on the topic, create a 4-option MCQ with answer + explanation.`,
     essay: `You are an assessment writer. Create an essay prompt with word limit + rubric.`,
     default: `You are a helpful assistant.`,

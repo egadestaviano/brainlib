@@ -3,6 +3,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const isAuthRoute = to.path.startsWith('/auth')
   const isLandingRoute = to.path === '/'
   const isOldLandingRoute = to.path === '/landing-page'
+  const isGuideRoute = to.path === '/guide'
 
   // Redirect old landing page to root
   if (isOldLandingRoute) {
@@ -10,7 +11,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   }
 
   // Redirect unauthenticated users to landing if they try to access protected routes
-  if (!token.value && !isAuthRoute && !isLandingRoute) {
+  if (!token.value && !isAuthRoute && !isLandingRoute && !isGuideRoute) {
     return navigateTo('/')
   }
 

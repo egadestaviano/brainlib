@@ -340,12 +340,12 @@ const isHigherThan = (planSlug: string) => {
 
   const isCurrentYearly = YEARLY_PLAN_IDS.includes(currentId)
 
-  // Jika user punya yearly, semua plan monthly di-lock (tidak bisa downgrade)
+  // If the user has a yearly plan, all monthly plans are locked (cannot downgrade)
   if (isCurrentYearly && billingCycle.value === 'monthly') {
     return true
   }
 
-  // Jika user punya monthly, semua plan yearly bisa diakses (upgrade)
+  // If the user has a monthly plan, all yearly plans are accessible (upgrade)
   // Bandingkan berdasarkan tier, bukan ID mentah
   const currentTier = PLAN_TIER_MAP[currentId] || 0
   const targetTier = SLUG_TIER_MAP[planSlug] || 0

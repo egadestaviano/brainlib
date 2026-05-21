@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-walkthrough="dashboard-welcome">
     <!-- Skeleton Loading -->
     <div v-if="LmsClassStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <USkeleton v-for="n in 6" :key="n" class="h-48 rounded-xl" />
@@ -11,9 +11,10 @@
     </div>
 
     <!-- Data State -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div v-else data-walkthrough="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <NuxtLink v-for="(classList, index) in LmsClassStore.clases" :key="classList.id" :to="'/classes/' + classList.id"
-        class="animate-in fade-up-in" :style="{ animationDelay: `${index * 0.1}s` }">
+        class="animate-in fade-up-in" :style="{ animationDelay: `${index * 0.1}s` }"
+        :data-walkthrough="index === 0 ? 'class-card' : undefined">
         <UCard class="hover-lift transition-all hover:shadow-lg">
           <template #header>
             <h1 class="text-2xl font-bold">{{ classList.title }}</h1>
@@ -36,7 +37,7 @@
           </div>
 
           <template #footer>
-            <div class="flex items-center justify-between">
+            <div :data-walkthrough="index === 0 ? 'dashboard-stats' : undefined" class="flex items-center justify-between">
               <span class="text-sm text-slate-600">{{ classList.member_count }} Students</span>
               <span class="text-sm text-slate-600">{{ classList.lesson_count || 0 }} Lessons</span>
               <UIcon name="i-heroicons-chevron-right" class="w-4 h-4 text-slate-300" />

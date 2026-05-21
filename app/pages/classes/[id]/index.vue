@@ -16,7 +16,7 @@
     <!-- Content -->
     <div v-else-if="lmsClassStore.classDetail" class="space-y-6">
       <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-sm">
+      <nav data-walkthrough="class-detail-breadcrumb" class="flex items-center gap-2 text-sm">
         <NuxtLink to="/classes" class="inline-flex items-center gap-1 text-slate-500 hover:text-slate-700 transition-colors">
           <UIcon name="heroicons-arrow-left" class="h-3.5 w-3.5" />
           My Classes
@@ -26,7 +26,7 @@
       </nav>
 
       <!-- Hero Header -->
-      <div class="relative bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <div data-walkthrough="class-detail-hero" class="relative bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <!-- Color banner (decorative strip only) -->
         <div :class="['h-20 relative', cardColor(lmsClassStore.classDetail.id)]">
           <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.25),transparent_60%)]"></div>
@@ -39,6 +39,7 @@
               type="button"
               @click="copyCode"
               :title="copied ? 'Copied!' : 'Click to copy'"
+              data-walkthrough="class-detail-code"
               class="group text-white inline-flex items-center gap-2 px-3 rounded-lg bg-white/30 hover:bg-white shadow-sm border border-white/40 transition cursor-pointer"
             >
               <span class="font-mono font-semibold tracking-widest text-sm text-white">{{ lmsClassStore.classDetail.code }}</span>
@@ -71,7 +72,7 @@
           </div>
 
           <!-- Meta row -->
-          <div class="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+          <div data-walkthrough="class-detail-meta" class="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
             <div class="flex items-center gap-2.5">
               <div :class="avatarColor(lmsClassStore.classDetail.id)" class="w-8 h-8 rounded-full text-white flex items-center justify-center font-semibold text-xs shrink-0">
                 {{ lmsClassStore.classDetail.creator.profile?.display_name?.[0]?.toUpperCase() }}
@@ -103,7 +104,7 @@
       </div>
 
       <!-- Tabs -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div data-walkthrough="class-detail-tabs" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-2 pt-2 border-b border-slate-100">
           <div class="flex items-center gap-1">
             <button

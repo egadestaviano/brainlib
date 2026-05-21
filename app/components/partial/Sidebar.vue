@@ -17,7 +17,7 @@
     </div>
 
     <div class="px-4 pt-2 flex-1 flex flex-col overflow-hidden">
-      <div :class="[
+      <div data-walkthrough="sidebar-classes" :class="[
         'flex items-center gap-1 rounded-lg transition',
         (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : '',
         isNavActive('/classes') ? 'bg-blue-600' : 'hover:bg-slate-50'
@@ -50,7 +50,7 @@
 
       <transition name="slide-fade">
         <div v-if="sidebar.classListOpen && (!sidebar.collapsed || sidebar.hovered)"
-          class="flex-1 overflow-hidden mt-2">
+          class="flex-1 overflow-hidden mt-2" data-walkthrough="sidebar-class-list">
           <div class="h-full overflow-y-auto">
             <div class="space-y-1 py-1">
               <NuxtLink v-for="cls in classesWithColor" :key="cls.id" :to="`/classes/${cls.id}`" :class="[

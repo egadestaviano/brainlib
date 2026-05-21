@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64"
+     xmlns="http://www.w3.org/2000/svg" fill="none">
+
+  <!-- Background rounded square -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#0F172A"/>
+
+  <!-- Brain shape -->
+  <path d="M32 18
+           C24 18,18 24,18 32
+           C18 40,24 46,32 46
+           C40 46,46 40,46 32
+           C46 24,40 18,32 18Z"
+        fill="#3B82F6"/>
+
+  <!-- Brain folds -->
+  <path d="M26 26C28 24,30 24,32 26
+           M32 26C34 24,36 24,38 26
+           M26 32C28 30,30 30,32 32
+           M32 32C34 30,36 30,38 32
+           M26 38C28 36,30 36,32 38
+           M32 38C34 36,36 36,38 38"
+        stroke="#93C5FD"
+        stroke-width="1.8"
+        stroke-linecap="round"/>
+
+  <!-- Book (bottom) -->
+  <path d="M22 38
+           L32 44
+           L42 38
+           L32 41
+           Z"
+        fill="#E0F2FE"/>
+
+  <!-- Center spine -->
+  <line x1="32" y1="41" x2="32" y2="46"
+        stroke="#0EA5E9"
+        stroke-width="2"
+        stroke-linecap="round"/>
+
+</svg>

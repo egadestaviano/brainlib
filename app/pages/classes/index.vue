@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div data-walkthrough="class-search" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div class="flex items-center gap-4">
         <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-blue-50 items-center justify-center ring-1 ring-blue-100">
           <UIcon name="heroicons-academic-cap" class="h-6 w-6 text-blue-600" />
@@ -74,11 +74,12 @@
     </div>
 
     <!-- Data State -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div v-else data-walkthrough="class-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
       <NuxtLink
-        v-for="classList in LmsClassStore.clases"
+        v-for="(classList, index) in LmsClassStore.clases"
         :key="classList.id"
         :to="'/classes/' + classList.id"
+        :data-walkthrough="index === 0 ? 'class-card' : undefined"
         class="group relative bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 flex flex-col"
       >
         <!-- Banner -->

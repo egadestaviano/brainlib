@@ -28,7 +28,7 @@
     <!-- Main Content -->
     <div v-else class="space-y-6">
       <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-sm">
+      <nav data-walkthrough="lesson-breadcrumb" class="flex items-center gap-2 text-sm">
         <NuxtLink to="/classes" class="text-slate-500 hover:text-slate-700 transition-colors">My Classes</NuxtLink>
         <UIcon name="heroicons-chevron-right" class="h-3.5 w-3.5 text-slate-400" />
         <NuxtLink :to="`/classes/${classId}`" class="text-slate-500 hover:text-slate-700 transition-colors truncate max-w-[200px]">
@@ -39,7 +39,7 @@
       </nav>
 
       <!-- Lesson Hero -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <div data-walkthrough="lesson-hero" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <div class="flex items-start gap-4">
           <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100 shrink-0">
             <UIcon name="heroicons-book-open" class="h-6 w-6 text-blue-600" />
@@ -65,7 +65,7 @@
       </div>
       <div v-if="!isSubmitted">
         <!-- Progress Bar -->
-        <div class="bg-white rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-5">
+        <div data-walkthrough="lesson-progress" class="bg-white rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-5">
           <div class="flex items-center justify-between text-sm mb-3">
             <span class="font-semibold text-slate-700">
               <template v-if="currentQuestionNumber > 0">
@@ -87,7 +87,7 @@
             />
           </div>
           <!-- Step indicators -->
-          <div class="flex items-center gap-1.5 mt-3">
+          <div data-walkthrough="lesson-step-indicators" class="flex items-center gap-1.5 mt-3">
             <button
               v-for="(_, idx) in totalPages"
               :key="idx"
@@ -112,7 +112,7 @@
         </div>
 
         <!-- Content Block -->
-        <div v-if="currentBlock" :class="[
+        <div v-if="currentBlock" data-walkthrough="lesson-content" :class="[
           'bg-white border-x border-slate-200 shadow-sm overflow-hidden transition-all duration-300',
           isReviewMode && results[currentIndex]?.isCorrect === false ? 'ring-2 ring-red-500 ring-inset' : ''
         ]">
@@ -293,6 +293,7 @@
               color="neutral"
               icon="heroicons-chevron-left"
               :disabled="currentIndex === 0"
+              data-walkthrough="lesson-nav-prev"
               @click="prevPage"
             >
               Prev
@@ -302,6 +303,7 @@
               v-if="currentIndex < totalPages - 1"
               color="neutral"
               trailing-icon="heroicons-chevron-right"
+              data-walkthrough="lesson-nav-next"
               @click="nextPage"
             >
               Next
@@ -311,6 +313,7 @@
               v-else-if="!isReviewMode"
               color="primary"
               icon="heroicons-paper-airplane"
+              data-walkthrough="lesson-submit"
               @click="submitAll"
             >
               Submit All

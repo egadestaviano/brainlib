@@ -21,7 +21,7 @@
       </div>
 
       <div class="px-6 pb-6 -mt-12 relative">
-        <div class="flex flex-col lg:flex-row lg:items-end gap-5">
+        <div class="flex flex-col lg:flex-row lg:items-end gap-5" data-walkthrough="profile-avatar">
           <div
             class="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-4xl font-bold shrink-0 ring-4 ring-white shadow-md">
             {{ auth.user?.profile?.display_name?.[0]?.toUpperCase() || 'U' }}
@@ -62,7 +62,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Edit Profile Form (2 cols) -->
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div data-walkthrough="profile-info" class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center ring-1 ring-sky-100 shrink-0">
             <UIcon name="heroicons-pencil-square" class="h-5 w-5 text-sky-600" />
@@ -99,7 +99,7 @@
       </div>
 
       <!-- Account Info -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div data-walkthrough="profile-settings" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center ring-1 ring-slate-200 shrink-0">
             <UIcon name="heroicons-information-circle" class="h-5 w-5 text-slate-600" />
