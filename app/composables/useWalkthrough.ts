@@ -216,18 +216,12 @@ export function useWalkthrough() {
     }
   })
 
-  // Watch route changes - auto-dismiss without completion
+  // Watch route changes - auto-start new route walkthrough
   watch(() => route.path, () => {
-    if (store.isActive) {
-      store.isActive = false
-      store.activeRoute = null
-      store.currentStep = 0
-      targetRect.value = null
-      targetFound.value = false
+    // If walkthrough was finished (not active), start new one if needed
+    if (!store.isActive) {
+      autoStartIfNeeded()
     }
-
-    // Auto-start for first-time visitors
-    autoStartIfNeeded()
   })
 
   // First-time visitor auto-start

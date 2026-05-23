@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div v-if="store.isActive && targetRect && currentStepConfig" class="walkthrough-overlay">
       <!-- Backdrop panels (cutout effect) -->
-      <div class="fixed inset-0 z-9998 pointer-events-none">
+      <div class="fixed inset-0 pointer-events-none" style="z-index: 9998;">
         <!-- Top panel -->
         <div
           class="absolute bg-black/50 pointer-events-auto"
@@ -12,7 +12,6 @@
             right: 0,
             height: `${Math.max(0, targetRect.top - 4)}px`
           }"
-          @click="skip"
         />
         <!-- Bottom panel -->
         <div
@@ -23,7 +22,6 @@
             right: 0,
             bottom: 0
           }"
-          @click="skip"
         />
         <!-- Left panel -->
         <div
@@ -34,7 +32,6 @@
             width: `${Math.max(0, targetRect.left - 4)}px`,
             height: `${targetRect.height + 8}px`
           }"
-          @click="skip"
         />
         <!-- Right panel -->
         <div
@@ -45,18 +42,31 @@
             right: 0,
             height: `${targetRect.height + 8}px`
           }"
-          @click="skip"
         />
 
         <!-- Target highlight ring -->
         <div
           class="absolute rounded-lg ring-2 ring-blue-400 ring-offset-2 pointer-events-none transition-all duration-300"
+          :class="{ 'animate-pulse': currentStepConfig.requireClick }"
           :style="{
             top: `${targetRect.top - 4}px`,
             left: `${targetRect.left - 4}px`,
             width: `${targetRect.width + 8}px`,
             height: `${targetRect.height + 8}px`
           }"
+        />
+
+        <!-- Clickable target area (when requireClick is true) -->
+        <div
+          v-if="currentStepConfig.requireClick"
+          class="absolute cursor-pointer pointer-events-auto"
+          :style="{
+            top: `${targetRect.top - 4}px`,
+            left: `${targetRect.left - 4}px`,
+            width: `${targetRect.width + 8}px`,
+            height: `${targetRect.height + 8}px`
+          }"
+          @click="handleTargetClick"
         />
       </div>
 
@@ -67,7 +77,8 @@
           role="dialog"
           aria-modal="true"
           :aria-label="`Tutorial step ${store.currentStep + 1} of ${totalSteps}: ${currentStepConfig.title}`"
-          class="fixed z-10000 w-80 max-w-[calc(100vw-16px)] bg-white rounded-xl shadow-2xl border border-slate-200 p-5 transition-all duration-300"
+          class="fixed w-80 max-w-[calc(100vw-16px)] bg-white rounded-xl shadow-2xl border border-slate-200 p-5 pointer-events-auto transition-all duration-300"
+          style="z-index: 10000;"
           :style="{
             top: `${tooltipPosition.top}px`,
             left: `${tooltipPosition.left}px`
@@ -80,10 +91,9 @@
               {{ store.currentStep + 1 }} / {{ totalSteps }}
             </span>
             <button
-              ref="skipBtnRef"
               type="button"
               aria-label="Skip tutorial"
-              class="text-xs text-slate-400 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 rounded px-1"
+              class="text-xs text-slate-400 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 rounded px-1 cursor-pointer"
               @click="skip"
             >
               Skip
@@ -101,22 +111,26 @@
           <!-- Navigation buttons -->
           <div class="flex items-center justify-between gap-2">
             <button
-              v-if="!isFirstStep"
+              v-if="!isFirstStep && !currentStepConfig.requireClick"
               ref="prevBtnRef"
               type="button"
               aria-label="Previous step"
-              class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+              class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 cursor-pointer"
               @click="prev"
             >
               Previous
             </button>
             <div v-else />
 
+            <span v-if="currentStepConfig.requireClick" class="text-xs text-blue-600 font-medium animate-pulse">
+              👆 Click to continue
+            </span>
             <button
+              v-else
               ref="nextBtnRef"
               type="button"
               :aria-label="isLastStep ? 'Finish tutorial' : 'Next step'"
-              class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+              class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 cursor-pointer"
               @click="isLastStep ? finish() : next()"
             >
               {{ isLastStep ? 'Finish' : 'Next' }}
@@ -148,28 +162,60 @@ const {
 const tooltipRef = ref<HTMLElement | null>(null)
 const nextBtnRef = ref<HTMLElement | null>(null)
 const prevBtnRef = ref<HTMLElement | null>(null)
-const skipBtnRef = ref<HTMLElement | null>(null)
 
 const descriptionId = computed(() => `walkthrough-desc-${store.currentStep}`)
+
+// Handle click on target element when requireClick is true
+function handleTargetClick() {
+  if (!currentStepConfig.value?.requireClick) return
+
+  // Find the actual target element
+  const el = document.querySelector<HTMLElement>(`[data-walkthrough="${currentStepConfig.value.target}"]`)
+
+  // Finish/advance the walkthrough
+  if (isLastStep.value) {
+    finish()
+  } else {
+    next()
+  }
+
+  // Click the actual element - use nextTick to let the overlay unmount first
+  nextTick(() => {
+    if (el) {
+      // For anchor/NuxtLink elements, find the <a> tag and navigate
+      const anchor = el.tagName === 'A' ? el as HTMLAnchorElement : el.querySelector('a')
+      if (anchor && anchor.href) {
+        const url = new URL(anchor.href)
+        useRouter().push(url.pathname)
+      } else {
+        el.click()
+      }
+    }
+  })
+}
 
 // Save and restore focus
 let previouslyFocused: HTMLElement | null = null
 
+// Block scroll when walkthrough is active
 watch(() => store.isActive, (active) => {
+  if (import.meta.server) return
   if (active) {
+    document.body.style.overflow = 'hidden'
     previouslyFocused = document.activeElement as HTMLElement | null
     nextTick(() => {
       nextBtnRef.value?.focus()
     })
   } else {
+    document.body.style.overflow = ''
     if (previouslyFocused && previouslyFocused.focus) {
       previouslyFocused.focus()
       previouslyFocused = null
     }
   }
-})
+}, { immediate: true })
 
-// Focus trap and keyboard handling
+// Keyboard handling
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     e.preventDefault()
@@ -196,11 +242,16 @@ function handleKeydown(e: KeyboardEvent) {
 
 function getFocusableElements(): HTMLElement[] {
   const elements: HTMLElement[] = []
-  if (skipBtnRef.value) elements.push(skipBtnRef.value)
   if (prevBtnRef.value) elements.push(prevBtnRef.value)
   if (nextBtnRef.value) elements.push(nextBtnRef.value)
   return elements
 }
+
+// Cleanup on unmount
+onUnmounted(() => {
+  if (import.meta.server) return
+  document.body.style.overflow = ''
+})
 </script>
 
 <style scoped>

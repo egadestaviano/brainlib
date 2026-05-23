@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Page Header -->
-    <div class="mb-6">
+    <div data-walkthrough="home-header" class="mb-6">
       <h1 class="text-2xl font-bold text-slate-900">My Classes</h1>
       <p class="text-sm text-slate-500 mt-1">View and manage your enrolled classes</p>
     </div>
@@ -37,11 +37,12 @@
     </div>
 
     <!-- Data State -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div v-else data-walkthrough="home-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       <NuxtLink
-        v-for="classList in LmsClassStore.clases"
+        v-for="(classList, index) in LmsClassStore.clases"
         :key="classList.id"
         :to="'/classes/' + classList.id"
+        :data-walkthrough="index === 0 ? 'home-class-card' : undefined"
         class="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-slate-300 transition-all duration-200 group"
       >
         <div class="mb-4">

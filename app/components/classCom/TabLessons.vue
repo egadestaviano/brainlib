@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="flex flex-row mt-4" v-if="isTeacherOrAdmin">
-      <ClassComLessonDialog :class-id="classId" />
+      <ClassComLessonDialog :class-id="classId" data-walkthrough="class-detail-add-lesson" />
     </div>
 
     <div v-if="lessons && lessons.length > 0" class="mt-3 space-y-2">
-      <NuxtLink v-for="item in lessons" :key="item.id" :to="'/classes/' + classId + '/lessons/' + item.id"
+      <NuxtLink v-for="(item, index) in lessons" :key="item.id" :to="'/classes/' + classId + '/lessons/' + item.id"
+        :data-walkthrough="index === 0 ? 'class-detail-lesson-item' : undefined"
         class="flex items-center gap-4 bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-slate-300 transition-all duration-200 group">
         <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 text-slate-600 shrink-0">
           <UIcon name="heroicons-book-open" class="h-5 w-5" />

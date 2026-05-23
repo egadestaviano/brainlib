@@ -1,29 +1,29 @@
 <template>
   <div class="space-y-8">
     <div class="space-y-2">
-      <h1 class="text-2xl font-bold text-slate-900">Sign in to Brainlib</h1>
+      <h1 data-walkthrough="login-title" class="text-2xl font-bold text-slate-900">Sign in to Brainlib</h1>
       <p class="text-sm text-slate-500">Enter your credentials to access your account</p>
     </div>
 
     <UForm :state="form" @submit="handleLogin" class="space-y-5">
       <UFormField label="Email" name="email" required>
-        <UInput class="w-full" v-model="form.email" type="email" size="lg" placeholder="you@example.com"
+        <UInput data-walkthrough="login-email" class="w-full" v-model="form.email" type="email" size="lg" placeholder="you@example.com"
           autocomplete="email" />
       </UFormField>
 
       <UFormField label="Password" name="password" required>
-        <UInput class="w-full" v-model="form.password" type="password" size="lg" placeholder="Enter your password"
+        <UInput data-walkthrough="login-password" class="w-full" v-model="form.password" type="password" size="lg" placeholder="Enter your password"
           autocomplete="current-password" />
       </UFormField>
 
-      <div class="flex items-center justify-between">
+      <div data-walkthrough="login-remember" class="flex items-center justify-between">
         <UCheckbox v-model="rememberMe" label="Remember me" name="remember" />
         <UButton variant="link" to="/auth/forgot-password" size="sm" class="text-slate-600">
           Forgot password?
         </UButton>
       </div>
 
-      <UButton type="submit" block :loading="loading" :disabled="loading" color="neutral"
+      <UButton data-walkthrough="login-submit" type="submit" block :loading="loading" :disabled="loading" color="neutral"
         class="h-11 text-base font-medium">
         {{ loading ? 'Signing in...' : 'Sign In' }}
       </UButton>
@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div data-walkthrough="login-demo" class="grid grid-cols-2 gap-3">
         <UButton variant="outline" color="neutral" @click="loginAsDemo('teacher@example.com')" :disabled="loading"
           class="justify-center">
           Demo Teacher

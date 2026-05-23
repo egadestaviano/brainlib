@@ -7,5 +7,7 @@
 
         <!-- Footer -->
         <PartialLandingFooter />
+
+        <TutorialWalkthroughOverlay />
     </main>
 </template>

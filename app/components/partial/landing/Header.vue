@@ -12,6 +12,7 @@
                 <nav class="flex items-center gap-4" aria-label="Sign in and Sign up menu">
                     <div class="sm:flex sm:gap-4">
                         <NuxtLink to="/auth/login"
+                            data-walkthrough="landing-login-btn"
                             class="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition"
                             title="Sign in to your account">
                             Login

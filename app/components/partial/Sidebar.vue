@@ -86,7 +86,7 @@
     </div>
 
     <!-- Footer nav -->
-    <div class="px-4 pb-4">
+    <div data-walkthrough="sidebar-footer-nav" class="px-4 pb-4">
       <ul class="space-y-1">
         <li v-for="item in footerNav" :key="item.label">
           <NuxtLink :to="item.to" :class="[

@@ -13,7 +13,7 @@
     <!-- Main Modal: Lesson Editor -->
     <UModal v-model:open="modalOpen" :ui="{ content: 'sm:max-w-3xl' }">
       <template #content>
-        <div class="flex flex-col max-h-[90vh]">
+        <div data-walkthrough="create-lesson-modal" class="flex flex-col max-h-[90vh]">
           <!-- Header -->
           <div class="px-6 pt-6 pb-4 border-b border-slate-100">
             <div class="flex items-start gap-4">

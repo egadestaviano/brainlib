@@ -1,13 +1,14 @@
 <template>
   <div class="space-y-8">
     <div class="space-y-2">
-      <h1 class="text-2xl font-bold text-slate-900">Create your Brainlib account</h1>
+      <h1 data-walkthrough="register-title" class="text-2xl font-bold text-slate-900">Create your Brainlib account</h1>
       <p class="text-sm text-slate-500">Start your learning journey today</p>
     </div>
 
     <UForm :state="form" @submit="handleRegister" class="space-y-5">
       <UFormField label="Full Name" name="display_name" required>
         <UInput
+          data-walkthrough="register-name"
           class="w-full"
           v-model="form.display_name"
           type="text"
@@ -19,6 +20,7 @@
 
       <UFormField label="Email" name="email" required>
         <UInput
+          data-walkthrough="register-email"
           class="w-full"
           v-model="form.email"
           type="email"
@@ -30,6 +32,7 @@
 
       <UFormField label="Password" name="password" required>
         <UInput
+          data-walkthrough="register-password"
           class="w-full"
           v-model="form.password"
           type="password"
@@ -52,6 +55,7 @@
 
       <UFormField label="Register As" name="role" required>
         <select
+          data-walkthrough="register-role"
           v-model="form.role"
           class="w-full h-11 px-3.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm font-medium ring-offset-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 shadow-sm transition"
         >
@@ -62,6 +66,7 @@
 
       <div class="flex items-center">
         <UCheckbox
+          data-walkthrough="register-terms"
           v-model="form.is_active"
           label="I agree to the Terms of Service"
           name="terms"
@@ -69,6 +74,7 @@
       </div>
 
       <UButton
+        data-walkthrough="register-submit"
         type="submit"
         block
         :loading="loading"

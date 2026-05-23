@@ -12,6 +12,8 @@ export interface WalkthroughStep {
   description: string
   /** Preferred tooltip placement */
   placement: 'top' | 'bottom' | 'left' | 'right'
+  /** If true, user must click the highlighted element to proceed (no Next button shown) */
+  requireClick?: boolean
 }
 
 export interface RouteWalkthroughConfig {
@@ -21,8 +23,132 @@ export interface RouteWalkthroughConfig {
 
 const walkthroughConfigs: RouteWalkthroughConfig[] = [
   {
+    route: '/',
+    steps: [
+      {
+        target: 'landing-login-btn',
+        title: 'Login to BrainLib',
+        description: 'Click the Login button to sign in to your account or create a new one. This is your first step!',
+        placement: 'bottom',
+        requireClick: true,
+      },
+    ],
+  },
+  {
+    route: '/auth/login',
+    steps: [
+      {
+        target: 'login-title',
+        title: 'Sign In Page',
+        description: 'Welcome to BrainLib! Enter your email and password here to access your account.',
+        placement: 'bottom',
+      },
+      {
+        target: 'login-email',
+        title: 'Email Field',
+        description: 'Enter the email address you used when registering your account.',
+        placement: 'bottom',
+      },
+      {
+        target: 'login-password',
+        title: 'Password Field',
+        description: 'Enter your password. Use "Forgot password?" if you need to reset it.',
+        placement: 'bottom',
+      },
+      {
+        target: 'login-remember',
+        title: 'Remember Me',
+        description: 'Check this to stay logged in. Useful if you use BrainLib frequently on this device.',
+        placement: 'bottom',
+      },
+      {
+        target: 'login-submit',
+        title: 'Sign In Button',
+        description: 'Click here to log in with your credentials. You\'ll be redirected to your classes.',
+        placement: 'top',
+      },
+      {
+        target: 'login-demo',
+        title: 'Demo Accounts',
+        description: 'Try BrainLib instantly! Click Demo Teacher or Demo Student to explore without registering.',
+        placement: 'top',
+      },
+    ],
+  },
+  {
+    route: '/auth/register',
+    steps: [
+      {
+        target: 'register-title',
+        title: 'Create Account',
+        description: 'Fill in your details to create a new BrainLib account and start learning or teaching.',
+        placement: 'bottom',
+      },
+      {
+        target: 'register-name',
+        title: 'Full Name',
+        description: 'Enter your display name. This is how other users will see you on the platform.',
+        placement: 'bottom',
+      },
+      {
+        target: 'register-email',
+        title: 'Email Address',
+        description: 'Use a valid email address. You\'ll use this to log in to your account.',
+        placement: 'bottom',
+      },
+      {
+        target: 'register-password',
+        title: 'Password',
+        description: 'Create a secure password. You\'ll need to confirm it in the next field.',
+        placement: 'bottom',
+      },
+      {
+        target: 'register-role',
+        title: 'Choose Your Role',
+        description: 'Select Student to join classes, or Teacher to create and manage your own classes.',
+        placement: 'top',
+      },
+      {
+        target: 'register-terms',
+        title: 'Terms of Service',
+        description: 'You must agree to the Terms of Service before creating your account.',
+        placement: 'top',
+      },
+      {
+        target: 'register-submit',
+        title: 'Create Account',
+        description: 'Click here to register. After success, you\'ll be redirected to the login page.',
+        placement: 'top',
+      },
+    ],
+  },
+  {
     route: '/dashboard',
     steps: [
+      {
+        target: 'header-menu',
+        title: 'Menu Toggle',
+        description: 'Click this button to collapse or expand the sidebar. Useful for getting more screen space.',
+        placement: 'bottom',
+      },
+      {
+        target: 'header-user',
+        title: 'Your Account',
+        description: 'Click your avatar to access your profile or log out. Your initials are shown here.',
+        placement: 'bottom',
+      },
+      {
+        target: 'sidebar-classes',
+        title: 'Classes Navigation',
+        description: 'Quick access to your classes. Click the chevron to expand and see all your enrolled classes.',
+        placement: 'right',
+      },
+      {
+        target: 'sidebar-class-list',
+        title: 'Class List',
+        description: 'All your enrolled classes appear here. Click any class to jump directly to it.',
+        placement: 'right',
+      },
       {
         target: 'dashboard-welcome',
         title: 'Welcome to Dashboard',
@@ -50,6 +176,35 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
     ],
   },
   {
+    route: '/home',
+    steps: [
+      {
+        target: 'header-menu',
+        title: 'Menu Toggle',
+        description: 'Click this button to collapse or expand the sidebar for more workspace.',
+        placement: 'bottom',
+      },
+      {
+        target: 'home-header',
+        title: 'My Classes',
+        description: 'This page shows all your enrolled classes. You can browse and open any class from here.',
+        placement: 'bottom',
+      },
+      {
+        target: 'home-grid',
+        title: 'Class Grid',
+        description: 'Your classes are displayed as cards. Each shows the title, description, teacher, and student count.',
+        placement: 'top',
+      },
+      {
+        target: 'home-class-card',
+        title: 'Class Card',
+        description: 'Click any card to open the class and view its lessons and materials.',
+        placement: 'bottom',
+      },
+    ],
+  },
+  {
     route: '/classes',
     steps: [
       {
@@ -59,21 +214,27 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
         placement: 'right',
       },
       {
-        target: 'class-list',
-        title: 'Class List',
-        description: 'Browse all your classes here. You can create a new class or join one using a class code.',
+        target: 'class-search',
+        title: 'Page Header & Actions',
+        description: 'See your total class count and use the buttons to create a new class or join one with a code.',
         placement: 'bottom',
+      },
+      {
+        target: 'class-create-btn',
+        title: 'Create or Join',
+        description: 'Teachers can create new classes. Students can join using a class code shared by their teacher.',
+        placement: 'bottom',
+      },
+      {
+        target: 'class-list',
+        title: 'Class Grid',
+        description: 'Browse all your classes here. Each card shows the banner, title, teacher, and stats.',
+        placement: 'top',
       },
       {
         target: 'class-card',
         title: 'Class Card',
-        description: 'Each card displays the class name, description, instructor, and stats. Click to open the class.',
-        placement: 'bottom',
-      },
-      {
-        target: 'class-search',
-        title: 'Class Actions',
-        description: 'Use the action buttons to create a new class or join an existing one with a code from your teacher.',
+        description: 'Each card displays the class name, description, instructor, and student/lesson counts. Click to open.',
         placement: 'bottom',
       },
     ],
@@ -90,13 +251,60 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
       {
         target: 'profile-info',
         title: 'Edit Profile',
-        description: 'Update your display name and bio here. Changes are saved to your account and visible to others.',
+        description: 'Update your display name and bio here. Click Save Changes when done.',
+        placement: 'top',
+      },
+      {
+        target: 'profile-save-btn',
+        title: 'Save Changes',
+        description: 'After editing your name or bio, click this button to save. It only activates when you make changes.',
         placement: 'top',
       },
       {
         target: 'profile-settings',
         title: 'Account Details',
-        description: 'View your account information including email, status, and membership date.',
+        description: 'View your account information including email, status, member since date, and user ID.',
+        placement: 'left',
+      },
+    ],
+  },
+  {
+    route: '/subscription',
+    steps: [
+      {
+        target: 'subscription-header',
+        title: 'Subscription Plans',
+        description: 'Choose a plan that fits your needs. Plans determine how many classes, students, and lessons you can have.',
+        placement: 'bottom',
+      },
+      {
+        target: 'subscription-billing-toggle',
+        title: 'Billing Cycle',
+        description: 'Switch between monthly and yearly billing. Yearly plans save you 10% compared to monthly.',
+        placement: 'bottom',
+      },
+      {
+        target: 'subscription-plans-grid',
+        title: 'Plan Cards',
+        description: 'Compare features across Starter, Medium, and Enterprise plans. Your current plan is highlighted.',
+        placement: 'top',
+      },
+      {
+        target: 'subscription-plan-starter',
+        title: 'Starter Plan',
+        description: 'Free plan for individual educators. Includes 1 class, 10 students, and 5 lessons per class.',
+        placement: 'right',
+      },
+      {
+        target: 'subscription-plan-medium',
+        title: 'Medium Plan',
+        description: 'For growing teams. Up to 10 classes, 50 students, and 20 lessons per class.',
+        placement: 'bottom',
+      },
+      {
+        target: 'subscription-plan-enterprise',
+        title: 'Enterprise Plan',
+        description: 'Unlimited everything for large organizations. No limits on classes, students, or lessons.',
         placement: 'left',
       },
     ],
@@ -131,8 +339,20 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
       {
         target: 'class-detail-tabs',
         title: 'Lessons & Students',
-        description: 'Switch between the Lessons tab to view content and the Students tab to see who is enrolled in this class.',
+        description: 'Switch between the Lessons tab to view content and the Students tab to see who is enrolled.',
         placement: 'top',
+      },
+      {
+        target: 'class-detail-add-lesson',
+        title: 'Add Lesson',
+        description: 'Teachers can add new lessons here. Click to create content blocks like text, images, videos, and quizzes.',
+        placement: 'bottom',
+      },
+      {
+        target: 'class-detail-lesson-item',
+        title: 'Lesson Item',
+        description: 'Each lesson is listed here with its title and summary. Click to open and start learning.',
+        placement: 'bottom',
       },
     ],
   },
@@ -142,7 +362,7 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
       {
         target: 'lesson-breadcrumb',
         title: 'Breadcrumb Navigation',
-        description: 'Use the breadcrumb to quickly navigate back to your class or the classes list without losing your place.',
+        description: 'Use the breadcrumb to quickly navigate back to your class or the classes list.',
         placement: 'bottom',
       },
       {
@@ -166,7 +386,7 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
       {
         target: 'lesson-content',
         title: 'Content Area',
-        description: 'This is where lesson content appears — text, images, videos, or questions. Read carefully and interact as needed.',
+        description: 'Lesson content appears here — text, images, videos, or questions. Read carefully and interact as needed.',
         placement: 'top',
       },
       {
@@ -184,7 +404,7 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
       {
         target: 'lesson-submit',
         title: 'Submit All',
-        description: 'When you reach the last page, click Submit All to send your answers for grading. Make sure you have answered all questions!',
+        description: 'When you reach the last page, click Submit All to send your answers for grading.',
         placement: 'top',
       },
     ],

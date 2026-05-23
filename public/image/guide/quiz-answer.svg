@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" fill="none">
+  <!-- Background -->
+  <rect width="800" height="320" rx="12" fill="#f8fafc"/>
+  <!-- Block type indicator -->
+  <rect x="20" y="15" width="760" height="35" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="35" y="23" width="22" height="22" rx="6" fill="#f5f3ff"/>
+  <text x="40" y="39" font-family="system-ui" font-size="11" fill="#7c3aed">≡</text>
+  <text x="65" y="37" font-family="system-ui" font-size="9" font-weight="700" fill="#7c3aed">QUIZ</text>
+  <text x="65" y="47" font-family="system-ui" font-size="9" fill="#94a3b8">Question 2 of 3</text>
+  <!-- Question -->
+  <text x="40" y="80" font-family="system-ui" font-size="14" font-weight="700" fill="#1e293b">What is the value of x in: 2x + 4 = 10?</text>
+  <!-- Options -->
+  <!-- Option A -->
+  <rect x="40" y="100" width="720" height="42" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <circle cx="70" cy="121" r="14" fill="#f1f5f9"/>
+  <text x="65" y="126" font-family="system-ui" font-size="11" font-weight="600" fill="#475569">A</text>
+  <text x="100" y="126" font-family="system-ui" font-size="12" fill="#334155">x = 2</text>
+  <!-- Option B (selected) -->
+  <rect x="40" y="150" width="720" height="42" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <circle cx="70" cy="171" r="14" fill="#3b82f6"/>
+  <text x="65" y="176" font-family="system-ui" font-size="11" font-weight="600" fill="white">B</text>
+  <text x="100" y="176" font-family="system-ui" font-size="12" font-weight="500" fill="#334155">x = 3</text>
+  <!-- Highlight ring -->
+  <rect x="36" y="146" width="728" height="50" rx="12" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 2"/>
+  <!-- Option C -->
+  <rect x="40" y="200" width="720" height="42" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <circle cx="70" cy="221" r="14" fill="#f1f5f9"/>
+  <text x="65" y="226" font-family="system-ui" font-size="11" font-weight="600" fill="#475569">C</text>
+  <text x="100" y="226" font-family="system-ui" font-size="12" fill="#334155">x = 4</text>
+  <!-- Option D -->
+  <rect x="40" y="250" width="720" height="42" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <circle cx="70" cy="271" r="14" fill="#f1f5f9"/>
+  <text x="65" y="276" font-family="system-ui" font-size="11" font-weight="600" fill="#475569">D</text>
+  <text x="100" y="276" font-family="system-ui" font-size="12" fill="#334155">x = 5</text>
+</svg>

@@ -90,7 +90,7 @@
             <UButton variant="ghost" color="neutral" type="button" @click="resetForm">
               Reset
             </UButton>
-            <UButton type="submit" color="primary" icon="heroicons-check" :loading="saving"
+            <UButton data-walkthrough="profile-save-btn" type="submit" color="primary" icon="heroicons-check" :loading="saving"
               :disabled="saving || !hasChanges">
               Save Changes
             </UButton>

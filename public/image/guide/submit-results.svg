@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" fill="none">
+  <!-- Background -->
+  <rect width="800" height="280" rx="12" fill="#f8fafc"/>
+  <!-- Results card -->
+  <rect x="100" y="15" width="600" height="250" rx="14" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Banner -->
+  <rect x="100" y="15" width="600" height="80" rx="14" fill="url(#resultGrad)"/>
+  <rect x="100" y="80" width="600" height="15" fill="url(#resultGrad)"/>
+  <!-- Trophy icon -->
+  <rect x="365" y="30" width="40" height="40" rx="10" fill="rgba(255,255,255,0.2)"/>
+  <text x="376" y="58" font-family="system-ui" font-size="20">🏆</text>
+  <!-- Title -->
+  <text x="320" y="85" font-family="system-ui" font-size="16" font-weight="700" fill="white">Lesson Complete!</text>
+  <!-- Score cards -->
+  <rect x="140" y="110" width="160" height="70" rx="10" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+  <text x="200" y="145" font-family="system-ui" font-size="24" font-weight="700" fill="#2563eb" text-anchor="middle">8</text>
+  <text x="200" y="165" font-family="system-ui" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">CORRECT</text>
+  <rect x="320" y="110" width="160" height="70" rx="10" fill="#fef2f2" stroke="#fecaca" stroke-width="1"/>
+  <text x="400" y="145" font-family="system-ui" font-size="24" font-weight="700" fill="#dc2626" text-anchor="middle">2</text>
+  <text x="400" y="165" font-family="system-ui" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">WRONG</text>
+  <rect x="500" y="110" width="160" height="70" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="580" y="145" font-family="system-ui" font-size="24" font-weight="700" fill="#334155" text-anchor="middle">80%</text>
+  <text x="580" y="165" font-family="system-ui" font-size="9" font-weight="700" fill="#475569" text-anchor="middle">ACCURACY</text>
+  <!-- Progress bar -->
+  <rect x="200" y="200" width="400" height="8" rx="4" fill="#f1f5f9"/>
+  <rect x="200" y="200" width="320" height="8" rx="4" fill="#3b82f6"/>
+  <!-- Review button -->
+  <rect x="310" y="225" width="150" height="30" rx="8" fill="#2563eb"/>
+  <text x="345" y="244" font-family="system-ui" font-size="11" fill="white">Review Answers</text>
+  <defs>
+    <linearGradient id="resultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+</svg>

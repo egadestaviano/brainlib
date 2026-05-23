@@ -22,6 +22,7 @@
           color="primary"
           icon="heroicons-arrow-right-on-rectangle"
           class="shadow-sm hover:shadow-md transition-shadow"
+          data-walkthrough="class-create-btn"
           @click="modalJoin = true"
         >
           Join Class
@@ -32,6 +33,7 @@
           color="primary"
           icon="heroicons-plus"
           class="shadow-sm hover:shadow-md transition-shadow"
+          data-walkthrough="class-create-btn"
           @click="modalCreate = true"
         >
           Create Class
@@ -151,7 +153,7 @@
     <!-- Create Class Modal -->
     <UModal v-model:open="modalCreate" :ui="{ content: 'sm:max-w-lg' }" @close="handleCancelCreate">
       <template #content>
-        <div>
+        <div data-walkthrough="create-class-modal">
           <!-- Header with accent -->
           <div class="px-6 pt-6 pb-5 border-b border-slate-100">
             <div class="flex items-start gap-4">

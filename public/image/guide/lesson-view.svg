@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" fill="none">
+  <!-- Background -->
+  <rect width="800" height="340" rx="12" fill="#f8fafc"/>
+  <!-- Breadcrumb -->
+  <text x="30" y="25" font-family="system-ui" font-size="10" fill="#64748b">My Classes › Mathematics 101 ›</text>
+  <text x="230" y="25" font-family="system-ui" font-size="10" font-weight="600" fill="#1e293b">Lesson 1</text>
+  <!-- Lesson Hero -->
+  <rect x="20" y="38" width="760" height="55" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="35" y="50" width="32" height="32" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+  <text x="44" y="72" font-family="system-ui" font-size="16" fill="#2563eb">📖</text>
+  <text x="80" y="67" font-family="system-ui" font-size="14" font-weight="700" fill="#1e293b">Introduction to Variables</text>
+  <text x="80" y="82" font-family="system-ui" font-size="10" fill="#64748b">5 blocks</text>
+  <!-- Progress Bar -->
+  <rect x="20" y="100" width="760" height="50" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="40" y="120" font-family="system-ui" font-size="11" font-weight="600" fill="#334155">Section 3 of 5</text>
+  <text x="700" y="120" font-family="system-ui" font-size="10" fill="#1d4ed8">60%</text>
+  <!-- Progress bar track -->
+  <rect x="40" y="128" width="720" height="6" rx="3" fill="#f1f5f9"/>
+  <rect x="40" y="128" width="432" height="6" rx="3" fill="#3b82f6"/>
+  <!-- Step indicators -->
+  <rect x="40" y="140" width="140" height="4" rx="2" fill="#93c5fd"/>
+  <rect x="185" y="140" width="140" height="4" rx="2" fill="#93c5fd"/>
+  <rect x="330" y="140" width="140" height="4" rx="2" fill="#3b82f6"/>
+  <rect x="475" y="140" width="140" height="4" rx="2" fill="#e2e8f0"/>
+  <rect x="620" y="140" width="140" height="4" rx="2" fill="#e2e8f0"/>
+  <!-- Highlight ring around progress -->
+  <rect x="16" y="96" width="768" height="58" rx="12" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 2"/>
+  <!-- Content Block -->
+  <rect x="20" y="158" width="760" height="120" rx="0" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="20" y="158" width="760" height="35" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="70" y="180" font-family="system-ui" font-size="10" font-weight="600" fill="#0284c7">READING</text>
+  <text x="40" y="210" font-family="system-ui" font-size="13" font-weight="700" fill="#1e293b">What is a Variable?</text>
+  <text x="40" y="230" font-family="system-ui" font-size="11" fill="#475569">A variable is a symbol that represents a value that can change.</text>
+  <text x="40" y="248" font-family="system-ui" font-size="11" fill="#475569">In algebra, we commonly use letters like x, y, and z...</text>
+  <!-- Navigation Buttons -->
+  <rect x="20" y="285" width="760" height="45" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Prev button -->
+  <rect x="40" y="296" width="70" height="24" rx="6" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="55" y="312" font-family="system-ui" font-size="11" fill="#475569">← Prev</text>
+  <!-- Next button -->
+  <rect x="690" y="296" width="70" height="24" rx="6" fill="#374151"/>
+  <text x="705" y="312" font-family="system-ui" font-size="11" fill="white">Next →</text>
+  <!-- Highlight ring around Next -->
+  <rect x="686" y="292" width="78" height="32" rx="8" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 2"/>
+</svg>

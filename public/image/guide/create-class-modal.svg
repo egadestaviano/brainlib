@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" fill="none">
+  <rect width="800" height="320" rx="12" fill="#f8fafc"/>
+
+  <!-- Top bar: showing the Create Class button highlighted -->
+  <rect x="20" y="15" width="760" height="40" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="40" y="40" font-family="system-ui" font-size="14" font-weight="700" fill="#0f172a">My Classes</text>
+  <text x="40" y="52" font-family="system-ui" font-size="9" fill="#64748b">3 classes</text>
+  <!-- + Create Class button - HIGHLIGHTED -->
+  <rect x="630" y="23" width="130" height="28" rx="7" fill="#3b82f6"/>
+  <text x="648" y="41" font-family="system-ui" font-size="11" font-weight="600" fill="white">+ Create Class</text>
+  <!-- Highlight ring -->
+  <rect x="626" y="19" width="138" height="36" rx="9" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+  <!-- Label -->
+  <rect x="650" y="6" width="90" height="14" rx="3" fill="#f59e0b"/>
+  <text x="654" y="16" font-family="system-ui" font-size="8" font-weight="600" fill="white">CREATE CLASS</text>
+
+  <!-- Backdrop overlay -->
+  <rect x="20" y="65" width="760" height="245" rx="12" fill="#0f172a" opacity="0.25"/>
+
+  <!-- Modal card -->
+  <rect x="180" y="70" width="440" height="235" rx="16" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Header -->
+  <rect x="200" y="90" width="44" height="44" rx="14" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+  <text x="213" y="118" font-family="system-ui" font-size="18" fill="#2563eb">🎓</text>
+  <text x="256" y="108" font-family="system-ui" font-size="15" font-weight="600" fill="#0f172a">Create New Class</text>
+  <text x="256" y="125" font-family="system-ui" font-size="10" fill="#64748b">Set up a new class for your students.</text>
+  <!-- Divider -->
+  <line x1="200" y1="145" x2="600" y2="145" stroke="#f1f5f9" stroke-width="1"/>
+  <!-- Title field -->
+  <text x="200" y="165" font-family="system-ui" font-size="11" font-weight="500" fill="#334155">Class Title *</text>
+  <rect x="200" y="170" width="400" height="32" rx="7" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="212" y="190" font-family="system-ui" font-size="11" fill="#94a3b8">e.g. Mathematics 101</text>
+  <!-- Description field -->
+  <text x="200" y="220" font-family="system-ui" font-size="11" font-weight="500" fill="#334155">Description *</text>
+  <rect x="200" y="225" width="400" height="40" rx="7" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="212" y="248" font-family="system-ui" font-size="11" fill="#94a3b8">What will students learn in this class?</text>
+  <!-- Footer -->
+  <rect x="180" y="275" width="440" height="30" fill="#f8fafc"/>
+  <line x1="180" y1="275" x2="620" y2="275" stroke="#f1f5f9" stroke-width="1"/>
+  <rect x="470" y="280" width="55" height="22" rx="5" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="482" y="295" font-family="system-ui" font-size="10" fill="#475569">Cancel</text>
+  <!-- Create Class button in modal - HIGHLIGHTED -->
+  <rect x="535" y="280" width="85" height="22" rx="5" fill="#3b82f6"/>
+  <text x="543" y="295" font-family="system-ui" font-size="10" font-weight="500" fill="white">+ Create Class</text>
+  <rect x="531" y="276" width="93" height="30" rx="7" fill="none" stroke="#f59e0b" stroke-width="2"/>
+</svg>

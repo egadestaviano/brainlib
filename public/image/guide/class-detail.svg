@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" fill="none">
+  <!-- Background -->
+  <rect width="800" height="340" rx="12" fill="#f8fafc"/>
+  <!-- Breadcrumb -->
+  <text x="30" y="30" font-family="system-ui" font-size="11" fill="#64748b">My Classes</text>
+  <text x="95" y="30" font-family="system-ui" font-size="11" fill="#94a3b8">›</text>
+  <text x="110" y="30" font-family="system-ui" font-size="11" font-weight="600" fill="#1e293b">Mathematics 101</text>
+  <!-- Hero Card -->
+  <rect x="20" y="45" width="760" height="140" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Color banner -->
+  <rect x="20" y="45" width="760" height="50" rx="12" fill="#3b82f6"/>
+  <!-- Class code highlight -->
+  <rect x="640" y="55" width="120" height="28" rx="8" fill="rgba(255,255,255,0.3)"/>
+  <text x="660" y="74" font-family="monospace" font-size="12" font-weight="700" fill="white">ABC123</text>
+  <rect x="755" y="62" width="14" height="14" rx="2" fill="none" stroke="white" stroke-width="1.5"/>
+  <!-- Highlight ring around code -->
+  <rect x="636" y="51" width="128" height="36" rx="10" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 2"/>
+  <!-- Avatar -->
+  <rect x="40" y="80" width="50" height="50" rx="14" fill="#3b82f6"/>
+  <text x="57" y="112" font-family="system-ui" font-size="22" font-weight="700" fill="white">M</text>
+  <!-- Title -->
+  <text x="105" y="115" font-family="system-ui" font-size="18" font-weight="700" fill="#1e293b">Mathematics 101</text>
+  <text x="105" y="135" font-family="system-ui" font-size="11" fill="#64748b">Introduction to algebra and calculus fundamentals</text>
+  <!-- Meta row -->
+  <circle cx="50" cy="168" r="10" fill="#3b82f6"/>
+  <text x="47" y="172" font-family="system-ui" font-size="9" fill="white">J</text>
+  <text x="65" y="172" font-family="system-ui" font-size="11" fill="#334155">John Smith</text>
+  <text x="160" y="172" font-family="system-ui" font-size="11" fill="#64748b">25 students</text>
+  <text x="260" y="172" font-family="system-ui" font-size="11" fill="#64748b">12 lessons</text>
+
+  <!-- Tabs Card -->
+  <rect x="20" y="200" width="760" height="130" rx="12" fill="white" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Tabs row - HIGHLIGHTED -->
+  <rect x="30" y="208" width="180" height="30" rx="6" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+  <text x="50" y="228" font-family="system-ui" font-size="13" font-weight="600" fill="#1d4ed8">Lessons</text>
+  <rect x="40" y="233" width="55" height="2" rx="1" fill="#3b82f6"/>
+  <text x="110" y="228" font-family="system-ui" font-size="13" fill="#64748b">1</text>
+  <text x="140" y="228" font-family="system-ui" font-size="13" fill="#64748b">Students</text>
+  <text x="200" y="228" font-family="system-ui" font-size="13" fill="#64748b">22</text>
+  <!-- Highlight label for tabs -->
+  <rect x="30" y="195" width="42" height="14" rx="3" fill="#f59e0b"/>
+  <text x="36" y="205" font-family="system-ui" font-size="8" font-weight="600" fill="white">TABS</text>
+
+  <!-- Add Lesson button - HIGHLIGHTED -->
+  <rect x="640" y="210" width="120" height="28" rx="7" fill="#3b82f6"/>
+  <text x="660" y="228" font-family="system-ui" font-size="11" font-weight="600" fill="white">+ Add Lesson</text>
+  <!-- Highlight ring around Add Lesson -->
+  <rect x="636" y="206" width="128" height="36" rx="9" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+  <!-- Highlight label -->
+  <rect x="680" y="193" width="70" height="14" rx="3" fill="#f59e0b"/>
+  <text x="684" y="203" font-family="system-ui" font-size="8" font-weight="600" fill="white">ADD LESSON</text>
+
+  <!-- Lesson items -->
+  <rect x="40" y="250" width="720" height="28" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="52" y="256" width="16" height="16" rx="4" fill="#eff6ff"/>
+  <text x="56" y="268" font-family="system-ui" font-size="10" fill="#3b82f6">📖</text>
+  <text x="76" y="268" font-family="system-ui" font-size="11" fill="#334155">Lesson 1: Introduction to Variables</text>
+  <rect x="40" y="284" width="720" height="28" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="52" y="290" width="16" height="16" rx="4" fill="#eff6ff"/>
+  <text x="56" y="302" font-family="system-ui" font-size="10" fill="#3b82f6">📖</text>
+  <text x="76" y="302" font-family="system-ui" font-size="11" fill="#334155">Lesson 2: Linear Equations</text>
+</svg>

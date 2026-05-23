@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-8">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div data-walkthrough="subscription-header" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-blue-50 items-center justify-center ring-1 ring-blue-100">
           <UIcon name="heroicons-credit-card" class="h-6 w-6 text-blue-600" />
@@ -18,7 +18,7 @@
       </div>
 
       <!-- Billing Toggle -->
-      <div class="inline-flex items-center gap-1 p-1 rounded-xl bg-white border border-slate-200 shadow-sm self-start sm:self-auto">
+      <div data-walkthrough="subscription-billing-toggle" class="inline-flex items-center gap-1 p-1 rounded-xl bg-white border border-slate-200 shadow-sm self-start sm:self-auto">
         <button
           type="button"
           @click="billingCycle = 'monthly'"
@@ -50,9 +50,9 @@
 
 
     <!-- Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5" :key="subscriptionStore.getSubscription?.id || 'none'">
+    <div data-walkthrough="subscription-plans-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5" :key="subscriptionStore.getSubscription?.id || 'none'">
       <!-- Starter -->
-      <div :class="[
+      <div data-walkthrough="subscription-plan-starter" :class="[
         'relative bg-white rounded-2xl border p-6 flex flex-col transition shadow-sm hover:shadow-md',
         isActive('starter') ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200 hover:border-slate-300'
       ]">
@@ -97,7 +97,7 @@
       </div>
 
       <!-- Medium (Featured) -->
-      <div :class="[
+      <div data-walkthrough="subscription-plan-medium" :class="[
         'relative bg-gradient-to-b from-blue-50/60 to-white rounded-2xl border-2 p-6 flex flex-col transition shadow-md hover:shadow-lg',
         isActive('medium') ? 'border-blue-500 ring-2 ring-blue-500/30' : 'border-blue-400'
       ]">
@@ -148,7 +148,7 @@
       </div>
 
       <!-- Enterprise -->
-      <div :class="[
+      <div data-walkthrough="subscription-plan-enterprise" :class="[
         'relative bg-white rounded-2xl border p-6 flex flex-col transition shadow-sm hover:shadow-md',
         isActive('enterprise') ? 'border-violet-500 ring-2 ring-violet-500/20' : 'border-slate-200 hover:border-slate-300'
       ]">

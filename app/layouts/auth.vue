@@ -46,5 +46,6 @@
       </div>
     </div>
 
+    <TutorialWalkthroughOverlay />
   </div>
 </template>
