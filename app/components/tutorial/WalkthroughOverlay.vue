@@ -144,6 +144,7 @@
 
 <script setup lang="ts">
 import { useTutorialStore } from '~/stores/tutorial'
+import { useWalkthrough } from '~/composables/useWalkthrough'
 
 const store = useTutorialStore()
 const {
