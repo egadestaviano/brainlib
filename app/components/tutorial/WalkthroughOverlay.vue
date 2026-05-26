@@ -128,9 +128,7 @@
             </button>
             <div v-else />
 
-            <span v-if="currentStepConfig.requireClick" class="text-xs text-blue-600 font-medium animate-pulse">
-              👆 Click to continue
-            </span>
+            <span v-if="currentStepConfig.requireClick" />
             <button
               v-else
               ref="nextBtnRef"
