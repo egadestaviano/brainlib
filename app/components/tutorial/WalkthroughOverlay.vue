@@ -1,75 +1,76 @@
 <template>
   <Teleport to="body">
-    <div v-if="store.isActive && targetRect && currentStepConfig" class="walkthrough-overlay">
-      <!-- SVG-based backdrop with cutout (fully responsive) -->
-      <svg
-        class="fixed inset-0 w-full h-full pointer-events-auto"
-        style="z-index: 9998;"
-        :viewBox="`0 0 ${windowWidth} ${windowHeight}`"
-        preserveAspectRatio="none"
-        @click.self="skip"
-      >
-        <defs>
-          <mask id="walkthrough-mask">
-            <rect width="100%" height="100%" fill="white" />
-            <rect
-              :x="highlightX"
-              :y="highlightY"
-              :width="highlightW"
-              :height="highlightH"
-              :rx="highlightRadius"
-              :ry="highlightRadius"
-              fill="black"
-              class="highlight-cutout"
-            />
-          </mask>
-        </defs>
-        <!-- Dark overlay with cutout -->
-        <rect
-          width="100%"
-          height="100%"
-          fill="rgba(0,0,0,0.5)"
-          mask="url(#walkthrough-mask)"
-        />
-        <!-- Highlight border ring -->
-        <rect
-          :x="highlightX"
-          :y="highlightY"
-          :width="highlightW"
-          :height="highlightH"
-          :rx="highlightRadius"
-          :ry="highlightRadius"
-          fill="none"
-          stroke="#60a5fa"
-          stroke-width="2"
-          class="highlight-ring"
-          :class="{ 'animate-pulse-ring': currentStepConfig.requireClick }"
-        />
-      </svg>
+    <Transition name="overlay-fade" @after-enter="onOverlayEntered">
+      <div v-if="store.isActive && targetRect && currentStepConfig" class="walkthrough-overlay">
+        <!-- SVG-based backdrop with cutout -->
+        <svg
+          class="fixed inset-0 w-full h-full pointer-events-auto"
+          style="z-index: 9998;"
+          :viewBox="`0 0 ${windowWidth} ${windowHeight}`"
+          preserveAspectRatio="none"
+          @click.self="skip"
+        >
+          <defs>
+            <mask id="walkthrough-mask">
+              <rect width="100%" height="100%" fill="white" />
+              <rect
+                :x="highlightX"
+                :y="highlightY"
+                :width="highlightW"
+                :height="highlightH"
+                :rx="highlightRadius"
+                :ry="highlightRadius"
+                fill="black"
+                class="highlight-cutout"
+              />
+            </mask>
+          </defs>
+          <!-- Dark overlay with cutout -->
+          <rect
+            width="100%"
+            height="100%"
+            fill="rgba(0,0,0,0.5)"
+            mask="url(#walkthrough-mask)"
+          />
+          <!-- Highlight border ring -->
+          <rect
+            :x="highlightX"
+            :y="highlightY"
+            :width="highlightW"
+            :height="highlightH"
+            :rx="highlightRadius"
+            :ry="highlightRadius"
+            fill="none"
+            stroke="#60a5fa"
+            stroke-width="2"
+            class="highlight-ring"
+            :class="{ 'animate-pulse-ring': currentStepConfig.requireClick }"
+          />
+        </svg>
 
-      <!-- Clickable target area (when requireClick is true) -->
-      <div
-        v-if="currentStepConfig.requireClick"
-        class="fixed cursor-pointer"
-        style="z-index: 9999;"
-        :style="{
-          top: `${highlightY}px`,
-          left: `${highlightX}px`,
-          width: `${highlightW}px`,
-          height: `${highlightH}px`,
-          borderRadius: `${highlightRadius}px`
-        }"
-        @click="handleTargetClick"
-      />
-
-      <!-- Tooltip -->
-      <Transition name="tooltip-fade">
+        <!-- Clickable target area (when requireClick is true) -->
         <div
+          v-if="currentStepConfig.requireClick"
+          class="fixed cursor-pointer"
+          style="z-index: 9999;"
+          :style="{
+            top: `${highlightY}px`,
+            left: `${highlightX}px`,
+            width: `${highlightW}px`,
+            height: `${highlightH}px`,
+            borderRadius: `${highlightRadius}px`
+          }"
+          @click="handleTargetClick"
+        />
+
+        <!-- Tooltip -->
+        <div
+          v-if="tooltipVisible"
           ref="tooltipRef"
           role="dialog"
           aria-modal="true"
           :aria-label="`Tutorial step ${store.currentStep + 1} of ${totalSteps}: ${currentStepConfig.title}`"
-          class="fixed bg-white rounded-xl shadow-2xl border border-slate-200 pointer-events-auto transition-all duration-300 ease-out walkthrough-tooltip"
+          class="fixed bg-white rounded-xl shadow-2xl border border-slate-200 pointer-events-auto walkthrough-tooltip tooltip-enter"
           style="z-index: 10000;"
           :style="{
             top: `${tooltipPosition.top}px`,
@@ -79,15 +80,12 @@
           }"
           @keydown="handleKeydown"
         >
-          <!-- Step indicator -->
-          <div class="flex items-center justify-between mb-2 sm:mb-3">
-            <span class="text-xs font-medium text-slate-400">
-              {{ store.currentStep + 1 }} / {{ totalSteps }}
-            </span>
+          <!-- Header with skip -->
+          <div class="flex items-center justify-end mb-2 sm:mb-3">
             <button
               type="button"
               aria-label="Skip tutorial"
-              class="text-xs text-slate-400 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 rounded px-1 cursor-pointer"
+              class="text-xs text-slate-400 hover:text-slate-600 transition-colors focus:outline-none rounded px-1 cursor-pointer"
               @click="skip"
             >
               Skip
@@ -101,6 +99,20 @@
           <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3 sm:mb-4" :aria-describedby="descriptionId">
             {{ currentStepConfig.description }}
           </p>
+
+          <!-- Step dots -->
+          <div class="flex items-center gap-1 mb-3">
+            <span
+              v-for="step in totalSteps"
+              :key="step"
+              :class="[
+                'rounded-full transition-all duration-300',
+                step - 1 <= store.currentStep
+                  ? 'w-2 h-2 bg-blue-500'
+                  : 'w-2 h-2 bg-slate-300'
+              ]"
+            />
+          </div>
 
           <!-- Navigation buttons -->
           <div class="flex items-center justify-between gap-2">
@@ -131,8 +143,8 @@
             </button>
           </div>
         </div>
-      </Transition>
-    </div>
+      </div>
+    </Transition>
   </Teleport>
 </template>
 
@@ -157,8 +169,9 @@ const {
 const tooltipRef = ref<HTMLElement | null>(null)
 const nextBtnRef = ref<HTMLElement | null>(null)
 const prevBtnRef = ref<HTMLElement | null>(null)
+const tooltipVisible = ref(false)
 
-// Reactive window width for responsive highlight
+// Reactive window dimensions
 const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024)
 const windowHeight = ref(typeof window !== 'undefined' ? window.innerHeight : 768)
 
@@ -172,7 +185,37 @@ onMounted(() => {
   window.addEventListener('orientationchange', updateWindowWidth)
 })
 
-// Responsive highlight padding and radius (now reactive to resize)
+// Show tooltip after overlay fade-in completes
+function onOverlayEntered() {
+  tooltipVisible.value = true
+  nextTick(() => {
+    nextBtnRef.value?.focus()
+  })
+}
+
+// When step changes, briefly hide tooltip for re-entrance animation
+watch(() => store.currentStep, () => {
+  if (store.isActive) {
+    tooltipVisible.value = false
+    nextTick(() => {
+      setTimeout(() => {
+        tooltipVisible.value = true
+        nextTick(() => {
+          nextBtnRef.value?.focus()
+        })
+      }, 250)
+    })
+  }
+})
+
+// When walkthrough becomes inactive, reset tooltip
+watch(() => store.isActive, (active) => {
+  if (!active) {
+    tooltipVisible.value = false
+  }
+})
+
+// Responsive highlight padding and radius
 const highlightPadding = computed(() => {
   return windowWidth.value < 480 ? 4 : windowWidth.value < 768 ? 6 : 8
 })
@@ -180,7 +223,7 @@ const highlightRadius = computed(() => {
   return windowWidth.value < 480 ? 6 : 8
 })
 
-// Computed highlight rect values (responsive + smooth)
+// Computed highlight rect values
 const highlightX = computed(() => {
   if (!targetRect.value) return 0
   return targetRect.value.left - highlightPadding.value
@@ -204,20 +247,16 @@ const descriptionId = computed(() => `walkthrough-desc-${store.currentStep}`)
 function handleTargetClick() {
   if (!currentStepConfig.value?.requireClick) return
 
-  // Find the actual target element
   const el = document.querySelector<HTMLElement>(`[data-walkthrough="${currentStepConfig.value.target}"]`)
 
-  // Finish/advance the walkthrough
   if (isLastStep.value) {
     finish()
   } else {
     next()
   }
 
-  // Click the actual element - use nextTick to let the overlay unmount first
   nextTick(() => {
     if (el) {
-      // For anchor/NuxtLink elements, find the <a> tag and navigate
       const anchor = el.tagName === 'A' ? el as HTMLAnchorElement : el.querySelector('a')
       if (anchor && anchor.href) {
         const url = new URL(anchor.href)
@@ -238,9 +277,6 @@ watch(() => store.isActive, (active) => {
   if (active) {
     document.body.style.overflow = 'hidden'
     previouslyFocused = document.activeElement as HTMLElement | null
-    nextTick(() => {
-      nextBtnRef.value?.focus()
-    })
   } else {
     document.body.style.overflow = ''
     if (previouslyFocused && previouslyFocused.focus) {
@@ -292,33 +328,64 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.tooltip-fade-enter-active,
-.tooltip-fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+/* Overlay fades in smoothly with backdrop + cutout already in position */
+.overlay-fade-enter-active {
+  animation: overlay-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.overlay-fade-leave-active {
+  animation: overlay-out 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-.tooltip-fade-enter-from,
-.tooltip-fade-leave-to {
-  opacity: 0;
-  transform: translateY(4px);
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-/* Smooth highlight transitions between steps and on resize */
+@keyframes overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Tooltip entrance animation */
+.tooltip-enter {
+  animation: tooltip-slide-in 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes tooltip-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Smooth highlight transitions between steps */
 .highlight-cutout,
 .highlight-ring {
-  transition: x 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              y 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              rx 0.2s ease,
-              ry 0.2s ease;
+  transition: x 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              y 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              rx 0.3s ease,
+              ry 0.3s ease;
 }
 
 .walkthrough-tooltip {
-  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              width 0.2s ease,
-              padding 0.2s ease;
+  transition: top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              width 0.25s ease,
+              padding 0.25s ease;
 }
 
 .animate-pulse-ring {
