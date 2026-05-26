@@ -10,32 +10,19 @@
                 </div>
 
                 <nav class="flex items-center gap-4" aria-label="Sign in and Sign up menu">
-                    <div class="sm:flex sm:gap-4">
+                    <div class="flex gap-2 sm:gap-4">
                         <NuxtLink to="/auth/login"
                             data-walkthrough="landing-login-btn"
-                            class="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition"
+                            class="rounded-md bg-indigo-600 px-4 sm:px-5 py-2 sm:py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition"
                             title="Sign in to your account">
                             Login
                         </NuxtLink>
 
-                        <div class="hidden sm:flex">
-                            <NuxtLink to="/auth/register"
-                                class="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-[#4338CA] hover:bg-gray-200 transition" 
-                                title="Create a new account">
-                                Register
-                            </NuxtLink>
-                        </div>
-                    </div>
-
-                    <div class="block md:hidden">
-                        <button 
-                            class="rounded-sm bg-gray-100 p-2 text-gray-600 transition hover:text-gray-900" 
-                            aria-label="Toggle Navigation Menu">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-                            </svg>
-                        </button>
+                        <NuxtLink to="/auth/register"
+                            class="rounded-md bg-gray-100 px-4 sm:px-5 py-2 sm:py-2.5 text-sm font-medium text-[#4338CA] hover:bg-gray-200 transition" 
+                            title="Create a new account">
+                            Register
+                        </NuxtLink>
                     </div>
                 </nav>
             </div>

@@ -3,15 +3,15 @@
     <!-- Page Header -->
     <div data-walkthrough="class-search" class="flex items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
       <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-blue-50 items-center justify-center ring-1 ring-blue-100 shrink-0">
-          <UIcon name="heroicons-academic-cap" class="h-6 w-6 text-blue-600" />
+        <div class="flex w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 items-center justify-center ring-1 ring-blue-100 shrink-0">
+          <UIcon name="heroicons-academic-cap" class="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <div class="min-w-0">
           <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">My Classes</h1>
           <p class="text-xs sm:text-sm text-slate-500 mt-0.5 truncate">
             <span class="font-medium text-slate-700">{{ LmsClassStore.clases?.length || 0 }}</span>
             {{ (LmsClassStore.clases?.length || 0) === 1 ? 'class' : 'classes' }} ·
-            <span class="hidden sm:inline">{{ isTeacherOrAdmin ? 'Manage and create your classes' : 'Continue your learning journey' }}</span>
+            {{ isTeacherOrAdmin ? 'Manage and create your classes' : 'Continue your learning journey' }}
           </p>
         </div>
       </div>
