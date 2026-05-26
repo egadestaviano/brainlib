@@ -1,49 +1,51 @@
 <template>
   <div>
     <!-- Page Header -->
-    <div data-walkthrough="class-search" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-      <div class="flex items-center gap-4">
-        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-blue-50 items-center justify-center ring-1 ring-blue-100">
+    <div data-walkthrough="class-search" class="flex items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-blue-50 items-center justify-center ring-1 ring-blue-100 shrink-0">
           <UIcon name="heroicons-academic-cap" class="h-6 w-6 text-blue-600" />
         </div>
-        <div>
-          <h1 class="text-3xl font-bold tracking-tight text-slate-900">My Classes</h1>
-          <p class="text-sm text-slate-500 mt-0.5">
+        <div class="min-w-0">
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">My Classes</h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5 truncate">
             <span class="font-medium text-slate-700">{{ LmsClassStore.clases?.length || 0 }}</span>
             {{ (LmsClassStore.clases?.length || 0) === 1 ? 'class' : 'classes' }} ·
-            <span>{{ isTeacherOrAdmin ? 'Manage and create your classes' : 'Continue your learning journey' }}</span>
+            <span class="hidden sm:inline">{{ isTeacherOrAdmin ? 'Manage and create your classes' : 'Continue your learning journey' }}</span>
           </p>
         </div>
       </div>
       <div class="flex items-center gap-2 shrink-0">
         <UButton
           v-if="!isTeacherOrAdmin"
-          size="lg"
+          size="md"
           color="primary"
           icon="heroicons-arrow-right-on-rectangle"
           class="shadow-sm hover:shadow-md transition-shadow"
           data-walkthrough="class-create-btn"
           @click="modalJoin = true"
         >
-          Join Class
+          <span class="hidden sm:inline">Join Class</span>
+          <span class="sm:hidden">Join</span>
         </UButton>
         <UButton
           v-if="isTeacherOrAdmin"
-          size="lg"
+          size="md"
           color="primary"
           icon="heroicons-plus"
           class="shadow-sm hover:shadow-md transition-shadow"
           data-walkthrough="class-create-btn"
           @click="modalCreate = true"
         >
-          Create Class
+          <span class="hidden sm:inline">Create Class</span>
+          <span class="sm:hidden">Create</span>
         </UButton>
       </div>
     </div>
 
     <!-- Skeleton Loading -->
-    <div v-if="LmsClassStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <div v-for="n in 6" :key="n" class="bg-white rounded-xl border border-slate-200 p-5 space-y-4 animate-pulse">
+    <div v-if="LmsClassStore.loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      <div v-for="n in 6" :key="n" class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 space-y-3 sm:space-y-4 animate-pulse">
         <div class="space-y-2">
           <USkeleton class="h-5 w-2/3 rounded" />
           <USkeleton class="h-4 w-full rounded" />
@@ -76,7 +78,7 @@
     </div>
 
     <!-- Data State -->
-    <div v-else data-walkthrough="class-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div v-else data-walkthrough="class-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
       <NuxtLink
         v-for="(classList, index) in LmsClassStore.clases"
         :key="classList.id"
@@ -85,7 +87,7 @@
         class="group relative bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 flex flex-col"
       >
         <!-- Banner -->
-        <div :class="['relative h-24 flex items-end p-4', cardColor(classList.id)]">
+        <div :class="['relative h-20 sm:h-24 flex items-end p-3 sm:p-4', cardColor(classList.id)]">
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/25 text-[11px] font-medium text-white">
             <UIcon name="heroicons-academic-cap" class="h-3 w-3" />
             {{ classList.visibility || 'Class' }}
@@ -108,7 +110,7 @@
         </div>
 
         <!-- Body -->
-        <div class="p-5 flex-1 flex flex-col">
+        <div class="p-4 sm:p-5 flex-1 flex flex-col">
           <h2 class="text-base font-semibold text-slate-900 line-clamp-1 group-hover:text-slate-700">
             {{ classList.title }}
           </h2>

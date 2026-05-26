@@ -2,7 +2,8 @@ export const useSidebarStore = defineStore("sidebar", {
   state: () => ({
     collapsed: false,
     classListOpen: true,
-    hovered: false 
+    hovered: false,
+    mobileOpen: false
   }),
 
   actions: {
@@ -14,8 +15,16 @@ export const useSidebarStore = defineStore("sidebar", {
     },
     setHovered(status: boolean) { 
       this.hovered = status
+    },
+    toggleMobile() {
+      this.mobileOpen = !this.mobileOpen
+    },
+    closeMobile() {
+      this.mobileOpen = false
     }
   },
 
-  persist: true
+  persist: {
+    pick: ['collapsed', 'classListOpen']
+  }
 })

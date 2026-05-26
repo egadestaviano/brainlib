@@ -7,8 +7,8 @@
     </div>
 
     <!-- Skeleton Loading -->
-    <div v-if="LmsClassStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <div v-for="n in 6" :key="n" class="bg-white rounded-xl border border-slate-200 p-5 space-y-4 animate-pulse">
+    <div v-if="LmsClassStore.loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      <div v-for="n in 6" :key="n" class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 space-y-3 sm:space-y-4 animate-pulse">
         <div class="space-y-2">
           <USkeleton class="h-5 w-2/3 rounded" />
           <USkeleton class="h-4 w-full rounded" />
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Data State -->
-    <div v-else data-walkthrough="home-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div v-else data-walkthrough="home-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
       <NuxtLink
         v-for="(classList, index) in LmsClassStore.clases"
         :key="classList.id"

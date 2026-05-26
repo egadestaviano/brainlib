@@ -53,7 +53,9 @@
           class="flex-1 overflow-hidden mt-2" data-walkthrough="sidebar-class-list">
           <div class="h-full overflow-y-auto">
             <div class="space-y-1 py-1">
-              <NuxtLink v-for="cls in classesWithColor" :key="cls.id" :to="`/classes/${cls.id}`" :class="[
+              <NuxtLink v-for="(cls, index) in classesWithColor" :key="cls.id" :to="`/classes/${cls.id}`"
+                :data-walkthrough="index === 0 ? 'sidebar-class-card' : undefined"
+                :class="[
                 'group flex items-center gap-3 p-3 rounded-xl transition-all duration-200',
                 isClassActive(cls.id)
                   ? 'bg-slate-100 border border-slate-200'

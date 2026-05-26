@@ -1,8 +1,8 @@
 <template>
-  <header class="flex items-center justify-between px-6 py-3 bg-white shadow-sm">
-    <div class="flex items-center gap-4">
-      <button data-walkthrough="header-menu" @click="sidebar.toggleCollapse" class="p-1 rounded hover:bg-slate-100">
-        <UIcon name="heroicons-bars-3" class="h-6 w-6 text-slate-700" />
+  <header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white shadow-sm">
+    <div class="flex items-center gap-3 sm:gap-4">
+      <button data-walkthrough="header-menu" @click="handleMenuToggle" class="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+        <UIcon name="heroicons-bars-3" class="h-5 w-5 sm:h-6 sm:w-6 text-slate-700" />
       </button>
     </div>
 
@@ -12,7 +12,7 @@
         <UTooltip text="My Account">
           <UButton
             data-walkthrough="header-user"
-            class="cursor-pointer w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-pink-500 text-white flex items-center justify-center font-medium focus:outline-none">
+            class="cursor-pointer w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-blue-500 to-pink-500 text-white flex items-center justify-center font-medium text-sm sm:text-base focus:outline-none">
             {{ auth?.user?.profile?.display_name?.charAt(0)?.toUpperCase() || '' }}
           </UButton>
         </UTooltip>
@@ -49,6 +49,16 @@ import { useAuthStore } from '~/stores/auth'
 
 const sidebar = useSidebarStore()
 const auth = useAuthStore()
+
+function handleMenuToggle() {
+  // On mobile (< lg), toggle mobile drawer
+  // On desktop (>= lg), toggle collapse
+  if (window.innerWidth < 1024) {
+    sidebar.toggleMobile()
+  } else {
+    sidebar.toggleCollapse()
+  }
+}
 
 async function handleLogout() {
   await auth.logout()

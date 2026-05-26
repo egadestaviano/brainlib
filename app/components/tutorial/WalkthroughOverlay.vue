@@ -1,74 +1,66 @@
 <template>
   <Teleport to="body">
     <div v-if="store.isActive && targetRect && currentStepConfig" class="walkthrough-overlay">
-      <!-- Backdrop panels (cutout effect) -->
-      <div class="fixed inset-0 pointer-events-none" style="z-index: 9998;">
-        <!-- Top panel -->
-        <div
-          class="absolute bg-black/50 pointer-events-auto"
-          :style="{
-            top: 0,
-            left: 0,
-            right: 0,
-            height: `${Math.max(0, targetRect.top - 4)}px`
-          }"
+      <!-- SVG-based backdrop with cutout (fully responsive) -->
+      <svg
+        class="fixed inset-0 w-full h-full pointer-events-auto"
+        style="z-index: 9998;"
+        :viewBox="`0 0 ${windowWidth} ${windowHeight}`"
+        preserveAspectRatio="none"
+        @click.self="skip"
+      >
+        <defs>
+          <mask id="walkthrough-mask">
+            <rect width="100%" height="100%" fill="white" />
+            <rect
+              :x="highlightX"
+              :y="highlightY"
+              :width="highlightW"
+              :height="highlightH"
+              :rx="highlightRadius"
+              :ry="highlightRadius"
+              fill="black"
+              class="highlight-cutout"
+            />
+          </mask>
+        </defs>
+        <!-- Dark overlay with cutout -->
+        <rect
+          width="100%"
+          height="100%"
+          fill="rgba(0,0,0,0.5)"
+          mask="url(#walkthrough-mask)"
         />
-        <!-- Bottom panel -->
-        <div
-          class="absolute bg-black/50 pointer-events-auto"
-          :style="{
-            top: `${targetRect.bottom + 4}px`,
-            left: 0,
-            right: 0,
-            bottom: 0
-          }"
+        <!-- Highlight border ring -->
+        <rect
+          :x="highlightX"
+          :y="highlightY"
+          :width="highlightW"
+          :height="highlightH"
+          :rx="highlightRadius"
+          :ry="highlightRadius"
+          fill="none"
+          stroke="#60a5fa"
+          stroke-width="2"
+          class="highlight-ring"
+          :class="{ 'animate-pulse-ring': currentStepConfig.requireClick }"
         />
-        <!-- Left panel -->
-        <div
-          class="absolute bg-black/50 pointer-events-auto"
-          :style="{
-            top: `${Math.max(0, targetRect.top - 4)}px`,
-            left: 0,
-            width: `${Math.max(0, targetRect.left - 4)}px`,
-            height: `${targetRect.height + 8}px`
-          }"
-        />
-        <!-- Right panel -->
-        <div
-          class="absolute bg-black/50 pointer-events-auto"
-          :style="{
-            top: `${Math.max(0, targetRect.top - 4)}px`,
-            left: `${targetRect.right + 4}px`,
-            right: 0,
-            height: `${targetRect.height + 8}px`
-          }"
-        />
+      </svg>
 
-        <!-- Target highlight ring -->
-        <div
-          class="absolute rounded-lg ring-2 ring-blue-400 ring-offset-2 pointer-events-none transition-all duration-300"
-          :class="{ 'animate-pulse': currentStepConfig.requireClick }"
-          :style="{
-            top: `${targetRect.top - 4}px`,
-            left: `${targetRect.left - 4}px`,
-            width: `${targetRect.width + 8}px`,
-            height: `${targetRect.height + 8}px`
-          }"
-        />
-
-        <!-- Clickable target area (when requireClick is true) -->
-        <div
-          v-if="currentStepConfig.requireClick"
-          class="absolute cursor-pointer pointer-events-auto"
-          :style="{
-            top: `${targetRect.top - 4}px`,
-            left: `${targetRect.left - 4}px`,
-            width: `${targetRect.width + 8}px`,
-            height: `${targetRect.height + 8}px`
-          }"
-          @click="handleTargetClick"
-        />
-      </div>
+      <!-- Clickable target area (when requireClick is true) -->
+      <div
+        v-if="currentStepConfig.requireClick"
+        class="fixed cursor-pointer"
+        style="z-index: 9999;"
+        :style="{
+          top: `${highlightY}px`,
+          left: `${highlightX}px`,
+          width: `${highlightW}px`,
+          height: `${highlightH}px`,
+          borderRadius: `${highlightRadius}px`
+        }"
+        @click="handleTargetClick"
+      />
 
       <!-- Tooltip -->
       <Transition name="tooltip-fade">
@@ -77,16 +69,18 @@
           role="dialog"
           aria-modal="true"
           :aria-label="`Tutorial step ${store.currentStep + 1} of ${totalSteps}: ${currentStepConfig.title}`"
-          class="fixed w-80 max-w-[calc(100vw-16px)] bg-white rounded-xl shadow-2xl border border-slate-200 p-5 pointer-events-auto transition-all duration-300"
+          class="fixed bg-white rounded-xl shadow-2xl border border-slate-200 pointer-events-auto transition-all duration-300 ease-out walkthrough-tooltip"
           style="z-index: 10000;"
           :style="{
             top: `${tooltipPosition.top}px`,
-            left: `${tooltipPosition.left}px`
+            left: `${tooltipPosition.left}px`,
+            width: windowWidth < 400 ? 'calc(100vw - 16px)' : windowWidth < 640 ? 'min(300px, calc(100vw - 24px))' : 'min(320px, calc(100vw - 32px))',
+            padding: windowWidth < 480 ? '12px' : '16px 20px'
           }"
           @keydown="handleKeydown"
         >
           <!-- Step indicator -->
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-between mb-2 sm:mb-3">
             <span class="text-xs font-medium text-slate-400">
               {{ store.currentStep + 1 }} / {{ totalSteps }}
             </span>
@@ -101,10 +95,10 @@
           </div>
 
           <!-- Content -->
-          <h3 :id="descriptionId" class="text-base font-semibold text-slate-900 mb-1.5">
+          <h3 :id="descriptionId" class="text-sm sm:text-base font-semibold text-slate-900 mb-1 sm:mb-1.5">
             {{ currentStepConfig.title }}
           </h3>
-          <p class="text-sm text-slate-600 leading-relaxed mb-4" :aria-describedby="descriptionId">
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3 sm:mb-4" :aria-describedby="descriptionId">
             {{ currentStepConfig.description }}
           </p>
 
@@ -115,7 +109,7 @@
               ref="prevBtnRef"
               type="button"
               aria-label="Previous step"
-              class="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 cursor-pointer"
+              class="px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 cursor-pointer"
               @click="prev"
             >
               Previous
@@ -130,7 +124,7 @@
               ref="nextBtnRef"
               type="button"
               :aria-label="isLastStep ? 'Finish tutorial' : 'Next step'"
-              class="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 cursor-pointer"
+              class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 cursor-pointer"
               @click="isLastStep ? finish() : next()"
             >
               {{ isLastStep ? 'Finish' : 'Next' }}
@@ -163,6 +157,46 @@ const {
 const tooltipRef = ref<HTMLElement | null>(null)
 const nextBtnRef = ref<HTMLElement | null>(null)
 const prevBtnRef = ref<HTMLElement | null>(null)
+
+// Reactive window width for responsive highlight
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024)
+const windowHeight = ref(typeof window !== 'undefined' ? window.innerHeight : 768)
+
+function updateWindowWidth() {
+  windowWidth.value = window.innerWidth
+  windowHeight.value = window.innerHeight
+}
+
+onMounted(() => {
+  window.addEventListener('resize', updateWindowWidth)
+  window.addEventListener('orientationchange', updateWindowWidth)
+})
+
+// Responsive highlight padding and radius (now reactive to resize)
+const highlightPadding = computed(() => {
+  return windowWidth.value < 480 ? 4 : windowWidth.value < 768 ? 6 : 8
+})
+const highlightRadius = computed(() => {
+  return windowWidth.value < 480 ? 6 : 8
+})
+
+// Computed highlight rect values (responsive + smooth)
+const highlightX = computed(() => {
+  if (!targetRect.value) return 0
+  return targetRect.value.left - highlightPadding.value
+})
+const highlightY = computed(() => {
+  if (!targetRect.value) return 0
+  return targetRect.value.top - highlightPadding.value
+})
+const highlightW = computed(() => {
+  if (!targetRect.value) return 0
+  return targetRect.value.width + highlightPadding.value * 2
+})
+const highlightH = computed(() => {
+  if (!targetRect.value) return 0
+  return targetRect.value.height + highlightPadding.value * 2
+})
 
 const descriptionId = computed(() => `walkthrough-desc-${store.currentStep}`)
 
@@ -252,6 +286,8 @@ function getFocusableElements(): HTMLElement[] {
 onUnmounted(() => {
   if (import.meta.server) return
   document.body.style.overflow = ''
+  window.removeEventListener('resize', updateWindowWidth)
+  window.removeEventListener('orientationchange', updateWindowWidth)
 })
 </script>
 
@@ -265,5 +301,38 @@ onUnmounted(() => {
 .tooltip-fade-leave-to {
   opacity: 0;
   transform: translateY(4px);
+}
+
+/* Smooth highlight transitions between steps and on resize */
+.highlight-cutout,
+.highlight-ring {
+  transition: x 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              y 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              rx 0.2s ease,
+              ry 0.2s ease;
+}
+
+.walkthrough-tooltip {
+  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.2s ease,
+              padding 0.2s ease;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    stroke-opacity: 1;
+    stroke-width: 2;
+  }
+  50% {
+    stroke-opacity: 0.5;
+    stroke-width: 3;
+  }
 }
 </style>

@@ -150,6 +150,12 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
         placement: 'right',
       },
       {
+        target: 'sidebar-class-card',
+        title: 'Class Card',
+        description: 'Each card shows the class name and teacher. Click any card to navigate directly to that class.',
+        placement: 'right',
+      },
+      {
         target: 'dashboard-welcome',
         title: 'Welcome to Dashboard',
         description: 'This is your dashboard where you can see an overview of your classes and activity at a glance.',
@@ -211,6 +217,12 @@ const walkthroughConfigs: RouteWalkthroughConfig[] = [
         target: 'sidebar-classes',
         title: 'Classes Navigation',
         description: 'Use the sidebar to quickly navigate to your classes. The class list expands to show all your enrolled classes.',
+        placement: 'right',
+      },
+      {
+        target: 'sidebar-class-card',
+        title: 'Class Card in Sidebar',
+        description: 'Each card shows the class name and teacher. Click any card to navigate directly to that class.',
         placement: 'right',
       },
       {

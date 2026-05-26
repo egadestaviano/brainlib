@@ -1,6 +1,7 @@
 import { getWalkthroughConfig } from '~/config/walkthroughConfigs'
 import type { WalkthroughStep } from '~/config/walkthroughConfigs'
 import { useTutorialStore } from '~/stores/tutorial'
+import { useSidebarStore } from '~/stores/sidebar'
 
 export interface TooltipPosition {
   top: number
@@ -10,6 +11,7 @@ export interface TooltipPosition {
 
 export function useWalkthrough() {
   const store = useTutorialStore()
+  const sidebarStore = useSidebarStore()
   const route = useRoute()
 
   const targetRect = ref<DOMRect | null>(null)
@@ -73,11 +75,16 @@ export function useWalkthrough() {
 
   // Calculate tooltip position with viewport boundary detection
   function calculatePosition(rect: DOMRect, preferredPlacement: WalkthroughStep['placement']): TooltipPosition {
-    const gap = 12
-    const viewportMargin = 8
-    const tooltipWidth = 320
+    const gap = window.innerWidth < 480 ? 8 : 12
+    const viewportMargin = window.innerWidth < 480 ? 8 : window.innerWidth < 640 ? 12 : 16
+    const tooltipWidth = window.innerWidth < 400
+      ? window.innerWidth - 16
+      : window.innerWidth < 640
+        ? Math.min(300, window.innerWidth - 24)
+        : Math.min(320, window.innerWidth - 32)
     const tooltipHeight = 160
     const isMobile = window.innerWidth < 768
+    const isSmallMobile = window.innerWidth < 480
 
     let placement = preferredPlacement
 
@@ -97,21 +104,36 @@ export function useWalkthrough() {
       placement = 'right'
     }
 
+    // Final fallback: if still doesn't fit vertically, use whichever side has more space
+    if (placement === 'bottom' && rect.bottom + gap + tooltipHeight > window.innerHeight - viewportMargin) {
+      if (rect.top > window.innerHeight - rect.bottom) {
+        placement = 'top'
+      }
+    } else if (placement === 'top' && rect.top - gap - tooltipHeight < viewportMargin) {
+      if (window.innerHeight - rect.bottom > rect.top) {
+        placement = 'bottom'
+      }
+    }
+
     let top = 0
     let left = 0
 
     switch (placement) {
       case 'bottom':
         top = rect.bottom + gap
-        left = isMobile
-          ? (window.innerWidth - Math.min(tooltipWidth, window.innerWidth - 16)) / 2
-          : rect.left + rect.width / 2 - tooltipWidth / 2
+        left = isSmallMobile
+          ? (window.innerWidth - tooltipWidth) / 2
+          : isMobile
+            ? (window.innerWidth - tooltipWidth) / 2
+            : rect.left + rect.width / 2 - tooltipWidth / 2
         break
       case 'top':
         top = rect.top - gap - tooltipHeight
-        left = isMobile
-          ? (window.innerWidth - Math.min(tooltipWidth, window.innerWidth - 16)) / 2
-          : rect.left + rect.width / 2 - tooltipWidth / 2
+        left = isSmallMobile
+          ? (window.innerWidth - tooltipWidth) / 2
+          : isMobile
+            ? (window.innerWidth - tooltipWidth) / 2
+            : rect.left + rect.width / 2 - tooltipWidth / 2
         break
       case 'right':
         top = rect.top + rect.height / 2 - tooltipHeight / 2
@@ -130,12 +152,71 @@ export function useWalkthrough() {
     return { top, left, placement }
   }
 
+  // Check if a target is inside the sidebar
+  function isSidebarTarget(target: string): boolean {
+    return target.startsWith('sidebar-')
+  }
+
+  // Track whether we opened the sidebar for the walkthrough
+  let sidebarOpenedByWalkthrough = false
+  let sidebarWasCollapsed = false
+
   // Update target rect and tooltip position for current step
   async function updateStepPosition() {
     if (!currentStepConfig.value || !store.isActive) {
       targetRect.value = null
       targetFound.value = false
+      // Restore sidebar state if we changed it
+      if (sidebarOpenedByWalkthrough) {
+        sidebarStore.closeMobile()
+        sidebarOpenedByWalkthrough = false
+      }
+      if (sidebarWasCollapsed) {
+        sidebarStore.collapsed = true
+        sidebarWasCollapsed = false
+      }
       return
+    }
+
+    const isMobile = window.innerWidth < 1024
+    const targetIsSidebar = isSidebarTarget(currentStepConfig.value.target)
+
+    if (targetIsSidebar) {
+      if (isMobile) {
+        // On mobile: open sidebar drawer
+        if (!sidebarStore.mobileOpen) {
+          sidebarStore.mobileOpen = true
+          sidebarOpenedByWalkthrough = true
+          // Wait for sidebar animation to complete
+          await new Promise((resolve) => setTimeout(resolve, 350))
+        }
+      } else {
+        // On desktop: expand sidebar if collapsed
+        if (sidebarStore.collapsed) {
+          sidebarWasCollapsed = true
+          sidebarStore.collapsed = false
+          // Wait for expand animation
+          await new Promise((resolve) => setTimeout(resolve, 350))
+        }
+      }
+
+      // Ensure class list is open if targeting class list items
+      if ((currentStepConfig.value.target === 'sidebar-class-list' || currentStepConfig.value.target === 'sidebar-class-card') && !sidebarStore.classListOpen) {
+        sidebarStore.classListOpen = true
+        await new Promise((resolve) => setTimeout(resolve, 200))
+      }
+    } else {
+      // Moving away from sidebar — restore state
+      if (isMobile && sidebarOpenedByWalkthrough) {
+        sidebarStore.closeMobile()
+        sidebarOpenedByWalkthrough = false
+        await new Promise((resolve) => setTimeout(resolve, 350))
+      }
+      if (!isMobile && sidebarWasCollapsed) {
+        sidebarStore.collapsed = true
+        sidebarWasCollapsed = false
+        await new Promise((resolve) => setTimeout(resolve, 350))
+      }
     }
 
     const el = await resolveTarget(currentStepConfig.value.target)
@@ -158,8 +239,9 @@ export function useWalkthrough() {
     tooltipPosition.value = calculatePosition(rect, currentStepConfig.value.placement)
   }
 
-  // Recalculate on resize
-  function handleResize() {
+  // Recalculate on resize/scroll/orientation change
+  let resizeRafId: number | null = null
+  function recalculatePosition() {
     if (store.isActive && currentStepConfig.value) {
       const el = document.querySelector<HTMLElement>(`[data-walkthrough="${currentStepConfig.value.target}"]`)
       if (el) {
@@ -168,6 +250,24 @@ export function useWalkthrough() {
         tooltipPosition.value = calculatePosition(rect, currentStepConfig.value.placement)
       }
     }
+  }
+
+  function handleResize() {
+    if (resizeRafId) return
+    resizeRafId = requestAnimationFrame(() => {
+      recalculatePosition()
+      resizeRafId = null
+    })
+  }
+
+  // Debounced version for scroll events
+  let scrollRafId: number | null = null
+  function handleScroll() {
+    if (scrollRafId) return
+    scrollRafId = requestAnimationFrame(() => {
+      recalculatePosition()
+      scrollRafId = null
+    })
   }
 
   // Actions
@@ -201,12 +301,30 @@ export function useWalkthrough() {
     store.skipWalkthrough()
     targetRect.value = null
     targetFound.value = false
+    // Restore sidebar state
+    if (sidebarOpenedByWalkthrough) {
+      sidebarStore.closeMobile()
+      sidebarOpenedByWalkthrough = false
+    }
+    if (sidebarWasCollapsed) {
+      sidebarStore.collapsed = true
+      sidebarWasCollapsed = false
+    }
   }
 
   function finish() {
     store.finishWalkthrough()
     targetRect.value = null
     targetFound.value = false
+    // Restore sidebar state
+    if (sidebarOpenedByWalkthrough) {
+      sidebarStore.closeMobile()
+      sidebarOpenedByWalkthrough = false
+    }
+    if (sidebarWasCollapsed) {
+      sidebarStore.collapsed = true
+      sidebarWasCollapsed = false
+    }
   }
 
   // Watch for step changes
@@ -246,15 +364,28 @@ export function useWalkthrough() {
     }
   }
 
-  // Setup resize listener
+  // Setup resize/scroll/orientation listeners
   onMounted(() => {
     window.addEventListener('resize', handleResize)
+    window.addEventListener('scroll', handleScroll, true) // capture phase for nested scrollables
+    window.addEventListener('orientationchange', () => {
+      // Orientation change needs a slight delay for viewport to settle
+      setTimeout(recalculatePosition, 100)
+    })
     // Auto-start on initial mount
     autoStartIfNeeded()
   })
 
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize)
+    window.removeEventListener('scroll', handleScroll, true)
+    window.removeEventListener('orientationchange', recalculatePosition)
+    if (scrollRafId) {
+      cancelAnimationFrame(scrollRafId)
+    }
+    if (resizeRafId) {
+      cancelAnimationFrame(resizeRafId)
+    }
   })
 
   return {

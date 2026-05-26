@@ -26,38 +26,38 @@
     </div>
 
     <!-- Main Content -->
-    <div v-else class="space-y-6">
+    <div v-else class="space-y-4 sm:space-y-6">
       <!-- Breadcrumb -->
-      <nav data-walkthrough="lesson-breadcrumb" class="flex items-center gap-2 text-sm">
-        <NuxtLink to="/classes" class="text-slate-500 hover:text-slate-700 transition-colors">My Classes</NuxtLink>
-        <UIcon name="heroicons-chevron-right" class="h-3.5 w-3.5 text-slate-400" />
-        <NuxtLink :to="`/classes/${classId}`" class="text-slate-500 hover:text-slate-700 transition-colors truncate max-w-[200px]">
+      <nav data-walkthrough="lesson-breadcrumb" class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide">
+        <NuxtLink to="/classes" class="text-slate-500 hover:text-slate-700 transition-colors whitespace-nowrap">My Classes</NuxtLink>
+        <UIcon name="heroicons-chevron-right" class="h-3 w-3 sm:h-3.5 sm:w-3.5 text-slate-400 shrink-0" />
+        <NuxtLink :to="`/classes/${classId}`" class="text-slate-500 hover:text-slate-700 transition-colors truncate max-w-[120px] sm:max-w-[200px]">
           {{ lmsClassStore.classDetail?.title || 'Class' }}
         </NuxtLink>
-        <UIcon name="heroicons-chevron-right" class="h-3.5 w-3.5 text-slate-400" />
+        <UIcon name="heroicons-chevron-right" class="h-3 w-3 sm:h-3.5 sm:w-3.5 text-slate-400 shrink-0" />
         <span class="text-slate-900 font-medium truncate">{{ lessonStore.lesson?.title || 'Lesson' }}</span>
       </nav>
 
       <!-- Lesson Hero -->
-      <div data-walkthrough="lesson-hero" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100 shrink-0">
-            <UIcon name="heroicons-book-open" class="h-6 w-6 text-blue-600" />
+      <div data-walkthrough="lesson-hero" class="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
+        <div class="flex items-start gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100 shrink-0">
+            <UIcon name="heroicons-book-open" class="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex flex-wrap items-center gap-2 mb-1">
-              <span v-if="isTeacher" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-[11px] font-semibold uppercase tracking-wider">
+              <span v-if="isTeacher" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider">
                 <UIcon name="heroicons-academic-cap" class="h-3 w-3" />
                 Teacher View
               </span>
-              <span v-else-if="isReviewMode" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[11px] font-semibold uppercase tracking-wider">
+              <span v-else-if="isReviewMode" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider">
                 <UIcon name="heroicons-check-circle" class="h-3 w-3" />
                 Submitted
               </span>
-              <span class="text-xs text-slate-500">{{ totalPages }} {{ totalPages === 1 ? 'block' : 'blocks' }}</span>
+              <span class="text-[10px] sm:text-xs text-slate-500">{{ totalPages }} {{ totalPages === 1 ? 'block' : 'blocks' }}</span>
             </div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900 truncate">{{ lessonStore.lesson?.title }}</h1>
-            <p v-if="lessonStore.lesson?.summary" class="text-sm text-slate-600 mt-1 leading-relaxed line-clamp-2">
+            <h1 class="text-lg sm:text-2xl font-bold tracking-tight text-slate-900 line-clamp-2 sm:truncate">{{ lessonStore.lesson?.title }}</h1>
+            <p v-if="lessonStore.lesson?.summary" class="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed line-clamp-2">
               {{ lessonStore.lesson.summary }}
             </p>
           </div>
@@ -65,8 +65,8 @@
       </div>
       <div v-if="!isSubmitted">
         <!-- Progress Bar -->
-        <div data-walkthrough="lesson-progress" class="bg-white rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-5">
-          <div class="flex items-center justify-between text-sm mb-3">
+        <div data-walkthrough="lesson-progress" class="bg-white rounded-t-xl sm:rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-3 sm:p-5">
+          <div class="flex items-center justify-between text-xs sm:text-sm mb-2 sm:mb-3">
             <span class="font-semibold text-slate-700">
               <template v-if="currentQuestionNumber > 0">
                 Question {{ currentQuestionNumber }} of {{ totalQuestions }}
@@ -75,19 +75,19 @@
                 Section {{ currentIndex + 1 }} of {{ totalPages }}
               </template>
             </span>
-            <span class="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-semibold">
+            <span class="inline-flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs bg-blue-50 text-blue-700 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-semibold">
               <UIcon name="heroicons-chart-bar" class="h-3 w-3" />
               {{ Math.round(((currentIndex + 1) / totalPages) * 100) }}%
             </span>
           </div>
-          <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-1.5 sm:h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
               class="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all duration-500 ease-out"
               :style="{ width: ((currentIndex + 1) / totalPages) * 100 + '%' }"
             />
           </div>
           <!-- Step indicators -->
-          <div data-walkthrough="lesson-step-indicators" class="flex items-center gap-1.5 mt-3">
+          <div data-walkthrough="lesson-step-indicators" class="flex items-center gap-1 sm:gap-1.5 mt-2 sm:mt-3">
             <button
               v-for="(_, idx) in totalPages"
               :key="idx"
@@ -117,13 +117,13 @@
           isReviewMode && results[currentIndex]?.isCorrect === false ? 'ring-2 ring-red-500 ring-inset' : ''
         ]">
           <!-- Block type indicator -->
-          <div class="px-8 py-4 border-b border-slate-100 flex items-center gap-3">
-            <div :class="['w-10 h-10 rounded-xl flex items-center justify-center', blockTypeStyle.bg]">
-              <UIcon :name="blockTypeStyle.icon" :class="['h-5 w-5', blockTypeStyle.text]" />
+          <div class="px-4 sm:px-8 py-3 sm:py-4 border-b border-slate-100 flex items-center gap-2 sm:gap-3">
+            <div :class="['w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center', blockTypeStyle.bg]">
+              <UIcon :name="blockTypeStyle.icon" :class="['h-4 w-4 sm:h-5 sm:w-5', blockTypeStyle.text]" />
             </div>
             <div class="flex-1 min-w-0">
-                <span :class="['text-[11px] font-semibold uppercase tracking-wider', blockTypeStyle.text]">{{ blockTypeStyle.label }}</span>
-                <p class="text-xs text-slate-500">
+                <span :class="['text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider', blockTypeStyle.text]">{{ blockTypeStyle.label }}</span>
+                <p class="text-[10px] sm:text-xs text-slate-500">
                   <template v-if="currentQuestionNumber > 0">
                     Question {{ currentQuestionNumber }} of {{ totalQuestions }}
                   </template>
@@ -134,8 +134,8 @@
             </div>
           </div>
 
-          <div class="p-8">
-            <h3 class="font-bold text-xl text-slate-900 mb-5">
+          <div class="p-4 sm:p-6 md:p-8">
+            <h3 class="font-bold text-base sm:text-xl text-slate-900 mb-3 sm:mb-5">
               {{ currentBlock.title ?? currentBlock.question ?? `Section ${currentIndex + 1}` }}
             </h3>
 
@@ -279,24 +279,26 @@
         </div>
 
         <!-- Pagination Controls -->
-        <div class="flex items-center justify-between bg-white rounded-b-2xl border-x border-b border-slate-200 px-5 py-3">
-          <UButton v-if="!isReviewMode" variant="ghost" color="neutral" icon="heroicons-arrow-path" @click="resetAll">
-            Reset
+        <div class="flex items-center justify-between bg-white rounded-b-xl sm:rounded-b-2xl border-x border-b border-slate-200 px-3 sm:px-5 py-2.5 sm:py-3">
+          <UButton v-if="!isReviewMode" variant="ghost" color="neutral" icon="heroicons-arrow-path" size="sm" @click="resetAll">
+            <span class="hidden sm:inline">Reset</span>
           </UButton>
-          <UButton v-else variant="ghost" color="primary" icon="heroicons-chart-pie" @click="handleViewSubmissions">
-            {{ isTeacher ? 'View Student Submissions' : 'View Score' }}
+          <UButton v-else variant="ghost" color="primary" icon="heroicons-chart-pie" size="sm" @click="handleViewSubmissions">
+            <span class="hidden sm:inline">{{ isTeacher ? 'View Student Submissions' : 'View Score' }}</span>
+            <span class="sm:hidden">{{ isTeacher ? 'Submissions' : 'Score' }}</span>
           </UButton>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 sm:gap-2">
             <UButton
               variant="outline"
               color="neutral"
               icon="heroicons-chevron-left"
               :disabled="currentIndex === 0"
               data-walkthrough="lesson-nav-prev"
+              size="sm"
               @click="prevPage"
             >
-              Prev
+              <span class="hidden sm:inline">Prev</span>
             </UButton>
 
             <UButton
@@ -304,9 +306,10 @@
               color="neutral"
               trailing-icon="heroicons-chevron-right"
               data-walkthrough="lesson-nav-next"
+              size="sm"
               @click="nextPage"
             >
-              Next
+              <span class="hidden sm:inline">Next</span>
             </UButton>
 
             <UButton
@@ -314,43 +317,45 @@
               color="primary"
               icon="heroicons-paper-airplane"
               data-walkthrough="lesson-submit"
+              size="sm"
               @click="submitAll"
             >
-              Submit All
+              <span class="hidden sm:inline">Submit All</span>
+              <span class="sm:hidden">Submit</span>
             </UButton>
           </div>
         </div>
       </div>
 
       <!-- Results -->
-      <div v-else class="space-y-6">
-        <div v-if="!isTeacher" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div v-else class="space-y-4 sm:space-y-6">
+        <div v-if="!isTeacher" class="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <!-- Banner -->
-          <div class="bg-gradient-to-br from-blue-500 to-blue-600 px-8 py-10 text-center text-white">
-            <div class="flex justify-center mb-4">
-              <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/10">
-                <UIcon name="heroicons-trophy" class="h-8 w-8" />
+          <div class="bg-gradient-to-br from-blue-500 to-blue-600 px-4 sm:px-8 py-6 sm:py-10 text-center text-white">
+            <div class="flex justify-center mb-3 sm:mb-4">
+              <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 sm:ring-4 ring-white/10">
+                <UIcon name="heroicons-trophy" class="h-6 w-6 sm:h-8 sm:w-8" />
               </div>
             </div>
-            <h2 class="text-3xl font-bold tracking-tight mb-1">Lesson Complete!</h2>
-            <p class="text-blue-50 text-sm">Here's how you did on the assessment</p>
+            <h2 class="text-xl sm:text-3xl font-bold tracking-tight mb-1">Lesson Complete!</h2>
+            <p class="text-blue-50 text-xs sm:text-sm">Here's how you did on the assessment</p>
           </div>
 
-          <div class="p-8">
-            <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
-              <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center">
-                <p class="text-3xl font-bold text-blue-600">{{ score.correct }}</p>
-                <p class="text-xs text-blue-700 mt-1 font-semibold uppercase tracking-wider">Correct</p>
+          <div class="p-4 sm:p-8">
+            <div class="grid grid-cols-3 gap-2 sm:gap-4 max-w-2xl mx-auto mb-6 sm:mb-8">
+              <div class="bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-center">
+                <p class="text-xl sm:text-3xl font-bold text-blue-600">{{ score.correct }}</p>
+                <p class="text-[10px] sm:text-xs text-blue-700 mt-0.5 sm:mt-1 font-semibold uppercase tracking-wider">Correct</p>
               </div>
-              <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
-                <p class="text-3xl font-bold text-red-600">{{ score.wrong }}</p>
-                <p class="text-xs text-red-700 mt-1 font-semibold uppercase tracking-wider">Wrong</p>
+              <div class="bg-red-50 border border-red-200 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-center">
+                <p class="text-xl sm:text-3xl font-bold text-red-600">{{ score.wrong }}</p>
+                <p class="text-[10px] sm:text-xs text-red-700 mt-0.5 sm:mt-1 font-semibold uppercase tracking-wider">Wrong</p>
               </div>
-              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
-                <p class="text-3xl font-bold text-slate-700">
+              <div class="bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-center">
+                <p class="text-xl sm:text-3xl font-bold text-slate-700">
                   {{ totalQuestions > 0 ? Math.round((score.correct / totalQuestions) * 100) : 0 }}%
                 </p>
-                <p class="text-xs text-slate-600 mt-1 font-semibold uppercase tracking-wider">Accuracy</p>
+                <p class="text-[10px] sm:text-xs text-slate-600 mt-0.5 sm:mt-1 font-semibold uppercase tracking-wider">Accuracy</p>
               </div>
             </div>
 
@@ -391,43 +396,44 @@
         </div>
 
         <!-- Teacher: Student Submissions -->
-        <div v-if="isTeacher" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100 shrink-0">
-                <UIcon name="heroicons-users" class="h-5 w-5 text-blue-600" />
+        <div v-if="isTeacher" class="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100 shrink-0">
+                <UIcon name="heroicons-users" class="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               </div>
               <div>
-                <h3 class="font-semibold text-slate-900">Student Submissions</h3>
-                <p class="text-xs text-slate-500">{{ allMembersSubmissions.filter(s => s.has_submitted).length }} of {{ allMembersSubmissions.length }} students submitted</p>
+                <h3 class="font-semibold text-slate-900 text-sm sm:text-base">Student Submissions</h3>
+                <p class="text-[10px] sm:text-xs text-slate-500">{{ allMembersSubmissions.filter(s => s.has_submitted).length }} of {{ allMembersSubmissions.length }} submitted</p>
               </div>
             </div>
-            <UButton variant="outline" color="neutral" size="sm" icon="heroicons-arrow-path" @click="loadTeacherSubmissions" :loading="lessonStore.loading">
-              Refresh
+            <UButton variant="outline" color="neutral" size="xs" icon="heroicons-arrow-path" @click="loadTeacherSubmissions" :loading="lessonStore.loading">
+              <span class="hidden sm:inline">Refresh</span>
             </UButton>
           </div>
           
-          <div class="overflow-x-auto">
+          <!-- Desktop table -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                  <th class="px-8 py-4 font-semibold">Student</th>
-                  <th class="px-8 py-4 font-semibold text-center">Status</th>
-                  <th class="px-8 py-4 font-semibold text-center">Correct</th>
-                  <th class="px-8 py-4 font-semibold text-center">Wrong</th>
-                  <th class="px-8 py-4 font-semibold text-center">Accuracy</th>
-                  <th class="px-8 py-4 font-semibold">Submitted At</th>
+                  <th class="px-6 lg:px-8 py-4 font-semibold">Student</th>
+                  <th class="px-6 lg:px-8 py-4 font-semibold text-center">Status</th>
+                  <th class="px-6 lg:px-8 py-4 font-semibold text-center">Correct</th>
+                  <th class="px-6 lg:px-8 py-4 font-semibold text-center">Wrong</th>
+                  <th class="px-6 lg:px-8 py-4 font-semibold text-center">Accuracy</th>
+                  <th class="px-6 lg:px-8 py-4 font-semibold">Submitted At</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr v-for="sub in allMembersSubmissions" :key="sub.user_id" class="hover:bg-slate-50/50 transition-colors">
-                  <td class="px-8 py-4">
+                  <td class="px-6 lg:px-8 py-4">
                     <div class="flex flex-col">
                       <span class="font-medium text-slate-700">{{ sub.user_name }}</span>
                       <span class="text-[10px] uppercase text-slate-400 font-bold tracking-tight">{{ sub.role }}</span>
                     </div>
                   </td>
-                  <td class="px-8 py-4 text-center">
+                  <td class="px-6 lg:px-8 py-4 text-center">
                     <span v-if="sub.has_submitted" class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase">
                       Submitted
                     </span>
@@ -435,15 +441,15 @@
                       Pending
                     </span>
                   </td>
-                  <td class="px-8 py-4 text-center text-blue-600 font-semibold">{{ sub.has_submitted ? `${sub.score_correct}/${totalQuestions}` : '-' }}</td>
-                  <td class="px-8 py-4 text-center text-red-600 font-semibold">{{ sub.has_submitted ? sub.score_wrong : '-' }}</td>
-                  <td class="px-8 py-4 text-center">
+                  <td class="px-6 lg:px-8 py-4 text-center text-blue-600 font-semibold">{{ sub.has_submitted ? `${sub.score_correct}/${totalQuestions}` : '-' }}</td>
+                  <td class="px-6 lg:px-8 py-4 text-center text-red-600 font-semibold">{{ sub.has_submitted ? sub.score_wrong : '-' }}</td>
+                  <td class="px-6 lg:px-8 py-4 text-center">
                     <span v-if="sub.has_submitted && totalQuestions > 0" class="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-bold">
                       {{ Math.round((sub.score_correct / totalQuestions) * 100) }}%
                     </span>
                     <span v-else class="text-slate-400">-</span>
                   </td>
-                  <td class="px-8 py-4 text-sm text-slate-500">
+                  <td class="px-6 lg:px-8 py-4 text-sm text-slate-500">
                     {{ sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString() : '-' }}
                   </td>
                 </tr>
@@ -452,6 +458,35 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile card layout -->
+          <div class="md:hidden divide-y divide-slate-100">
+            <div v-for="sub in allMembersSubmissions" :key="sub.user_id" class="p-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-slate-700 text-sm">{{ sub.user_name }}</p>
+                  <p class="text-[10px] uppercase text-slate-400 font-bold">{{ sub.role }}</p>
+                </div>
+                <span v-if="sub.has_submitted" class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase">
+                  Submitted
+                </span>
+                <span v-else class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase">
+                  Pending
+                </span>
+              </div>
+              <div v-if="sub.has_submitted" class="flex items-center gap-3 text-xs">
+                <span class="text-blue-600 font-semibold">{{ sub.score_correct }}/{{ totalQuestions }} correct</span>
+                <span class="text-red-600 font-semibold">{{ sub.score_wrong }} wrong</span>
+                <span v-if="totalQuestions > 0" class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold">
+                  {{ Math.round((sub.score_correct / totalQuestions) * 100) }}%
+                </span>
+              </div>
+              <p v-if="sub.submitted_at" class="text-[10px] text-slate-400">{{ new Date(sub.submitted_at).toLocaleDateString() }}</p>
+            </div>
+            <div v-if="!allMembersSubmissions.length" class="p-8 text-center text-slate-400 italic text-sm">
+              No students joined yet
+            </div>
           </div>
         </div>
       </div>
