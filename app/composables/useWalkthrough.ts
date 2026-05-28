@@ -61,14 +61,34 @@ export function useWalkthrough() {
     })
   }
 
-  // Scroll target into view if off-screen
+  // Scroll target into view if off-screen, accounting for tooltip placement
   async function scrollToTarget(el: HTMLElement): Promise<void> {
     const rect = el.getBoundingClientRect()
-    const inView = rect.top >= 0 && rect.bottom <= window.innerHeight
+    const placement = currentStepConfig.value?.placement || 'bottom'
+    const tooltipSpace = 180 // space needed for tooltip
 
-    if (!inView) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      // Wait for scroll to finish (max 500ms)
+    // Check if element is in view with enough room for tooltip
+    let needsScroll = false
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+      needsScroll = true
+    } else if (placement === 'top' && rect.top < tooltipSpace) {
+      needsScroll = true
+    } else if (placement === 'bottom' && rect.bottom > window.innerHeight - tooltipSpace) {
+      needsScroll = true
+    }
+
+    if (needsScroll) {
+      // Find the scrollable parent (main content area)
+      const scrollParent = el.closest('main') || el.closest('[style*="overflow"]') || null
+
+      if (scrollParent && placement === 'top') {
+        // Scroll so element is in the lower half of viewport, giving room above
+        const elTop = el.offsetTop
+        const targetScroll = elTop - tooltipSpace - 20
+        scrollParent.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' })
+      } else {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
       await new Promise((resolve) => setTimeout(resolve, 500))
     }
   }
@@ -82,7 +102,7 @@ export function useWalkthrough() {
       : window.innerWidth < 640
         ? Math.min(300, window.innerWidth - 24)
         : Math.min(320, window.innerWidth - 32)
-    const tooltipHeight = 160
+    const tooltipHeight = 140
     const isMobile = window.innerWidth < 768
     const isSmallMobile = window.innerWidth < 480
 
@@ -96,22 +116,17 @@ export function useWalkthrough() {
     // Check if preferred placement fits, flip if not
     if (placement === 'bottom' && rect.bottom + gap + tooltipHeight > window.innerHeight - viewportMargin) {
       placement = 'top'
-    } else if (placement === 'top' && rect.top - gap - tooltipHeight < viewportMargin) {
-      placement = 'bottom'
     } else if (placement === 'right' && rect.right + gap + tooltipWidth > window.innerWidth - viewportMargin) {
       placement = 'left'
     } else if (placement === 'left' && rect.left - gap - tooltipWidth < viewportMargin) {
       placement = 'right'
     }
+    // Note: 'top' placement is never flipped — tooltip will be clamped to viewport instead
 
-    // Final fallback: if still doesn't fit vertically, use whichever side has more space
+    // Final fallback: if bottom still doesn't fit, use whichever side has more space
     if (placement === 'bottom' && rect.bottom + gap + tooltipHeight > window.innerHeight - viewportMargin) {
       if (rect.top > window.innerHeight - rect.bottom) {
         placement = 'top'
-      }
-    } else if (placement === 'top' && rect.top - gap - tooltipHeight < viewportMargin) {
-      if (window.innerHeight - rect.bottom > rect.top) {
-        placement = 'bottom'
       }
     }
 
@@ -130,10 +145,10 @@ export function useWalkthrough() {
       case 'top':
         top = rect.top - gap - tooltipHeight
         left = isSmallMobile
-          ? (window.innerWidth - tooltipWidth) / 2
+          ? viewportMargin
           : isMobile
-            ? (window.innerWidth - tooltipWidth) / 2
-            : rect.left + rect.width / 2 - tooltipWidth / 2
+            ? rect.left
+            : rect.left
         break
       case 'right':
         top = rect.top + rect.height / 2 - tooltipHeight / 2
