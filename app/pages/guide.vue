@@ -120,7 +120,7 @@
         <p class="text-slate-600 leading-relaxed">
           The platform has three main areas: the <strong>sidebar</strong> on the left for navigation,
           the <strong>header</strong> at the top for account access, and the <strong>main content area</strong>
-          where pages are displayed. The sidebar collapses automatically and expands on hover.
+          where pages are displayed. The sidebar is collapsed or expanded manually from the hamburger menu.
         </p>
         <div class="rounded-xl border border-slate-100 overflow-hidden bg-slate-50 p-4">
           <img
@@ -143,7 +143,7 @@
           </li>
           <li class="flex items-start gap-2">
             <UIcon name="heroicons-check-circle" class="h-5 w-5 text-violet-500 shrink-0 mt-0.5" />
-            <span><strong>Sidebar class list</strong> — Hover to expand, click chevron to show/hide classes</span>
+            <span><strong>Sidebar class list</strong> — Saat sidebar collapse, kelas tetap tampil ringkas; saat expand, click chevron untuk show/hide classes</span>
           </li>
           <li class="flex items-start gap-2">
             <UIcon name="heroicons-check-circle" class="h-5 w-5 text-violet-500 shrink-0 mt-0.5" />
